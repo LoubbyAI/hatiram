@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<!-- saved from url=(0053)file:///C:/Users/Lo.U/Downloads/hat%C4%B1ram-v10.html -->
+<html lang="tr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hatıram</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --gece: #1A2E44;
+  --gece-acik: #243d5a;
+  --gul: #A67B71;
+  --gul-acik: #C4A09A;
+  --gul-cok-acik: #F5EDEB;
+  --altin: #D4AF37;
+  --antik: #F9F7F2;
+  --antik2: #F0ECE4;
+  --komur: #2D2D2D;
+  --komur-acik: #6B6B6B;
+  --beyaz: #FFFFFF;
+  --golge: rgba(26,46,68,0.10);
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--antik);
+  color: var(--komur);
+  max-width: 390px;
+  margin: 0 auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.ekran { display: none; min-height: 100vh; flex-direction: column; }
+.ekran.aktif { display: flex; }
+.scroll-icerik { flex: 1; overflow-y: auto; padding-bottom: 90px; }
+.scroll-icerik::-webkit-scrollbar { display: none; }
+
+/* ── İKON SİSTEMİ ── */
+.ikon {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ikon svg { display: block; }
+
+/* ── ONBOARDING ── */
+.ob-wrap {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 28px; text-align: center;
+}
+.ob-logo {
+  width: 108px; height: 108px;
+  background: var(--antik2);
+  border-radius: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(166,123,113,0.25);
+  box-shadow: 0 8px 32px rgba(166,123,113,0.18), 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 28px;
+}
+.ob-baslik {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px; font-weight: 700; color: var(--gece);
+  margin-bottom: 10px; line-height: 1.2;
+}
+.ob-baslik em { color: var(--gul); font-style: italic; }
+.ob-aciklama {
+  font-size: 14px; line-height: 1.6;
+  color: var(--komur-acik); margin-bottom: 28px;
+}
+.gizlilik-rozet {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(26,46,68,0.05);
+  border: 1px solid rgba(26,46,68,0.1);
+  border-radius: 16px; padding: 14px 18px;
+  margin-bottom: 44px; text-align: left;
+}
+.gizlilik-rozet-metin { font-size: 13px; line-height: 1.5; color: var(--gece); font-weight: 500; }
+.gizlilik-rozet-metin strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.ob-noktalar { display: flex; gap: 8px; margin-bottom: 24px; justify-content: center; }
+.nokta {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--antik2); border: 1px solid var(--gul-acik); transition: all 0.3s;
+}
+.nokta.aktif { background: var(--gece); border-color: var(--gece); width: 26px; border-radius: 4px; }
+
+.btn-ana {
+  width: 100%; padding: 15px;
+  background: var(--gece); color: var(--beyaz);
+  border: none; border-radius: 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 17px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(26,46,68,0.3);
+  transition: transform 0.15s;
+}
+.btn-ana:active { transform: scale(0.97); }
+.btn-ikincil {
+  width: 100%; padding: 14px; background: transparent;
+  color: var(--komur-acik); border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; cursor: pointer; margin-top: 10px;
+}
+
+/* ── HEADER ── */
+.ana-header { padding: 44px 20px 12px; background: var(--gece); }
+.header-ust { display: flex; align-items: flex-start; justify-content: space-between; }
+.header-selamlama { font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 0.3px; }
+.header-isim {
+  font-family: 'Playfair Display', serif;
+  font-size: 21px; font-weight: 700; color: var(--beyaz); margin-top: 2px;
+}
+.header-sag { display: flex; gap: 8px; margin-top: 4px; }
+.ikon-btn {
+  width: 40px; height: 40px; padding: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.15);
+  transition: background 0.15s;
+}
+.ikon-btn:active { background: rgba(255,255,255,0.18); }
+.ikon-btn:active svg { stroke: var(--altin); }
+
+.gizlilik-cubugu {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 20px;
+  background: rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.gizlilik-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--altin); flex-shrink: 0; }
+.gizlilik-metin { font-size: 11px; color: rgba(255,255,255,0.55); font-weight: 500; }
+
+/* ── KATEGORİ ── */
+.kategori-wrap { background: var(--gece); padding: 8px 14px 16px; }
+.kategori-sekme { display: flex; gap: 8px; overflow-x: auto; }
+.kategori-sekme::-webkit-scrollbar { display: none; }
+.sek {
+  white-space: nowrap; padding: 8px 16px;
+  border-radius: 20px; font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.2s;
+}
+.sek.aktif { background: var(--altin); color: var(--gece); border-color: var(--altin); font-weight: 600; }
+
+/* ── ALBÜM IZGARASI ── */
+.bolum-satir {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 8px;
+}
+.bolum-baslik {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; font-weight: 600; color: var(--gece);
+}
+.bolum-link { font-size: 13px; color: var(--gul); font-weight: 500; cursor: pointer; }
+
+.album-izgara { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 14px; }
+
+.album-kart-wrap { position: relative; cursor: pointer; }
+.album-kart-wrap.buyuk { grid-column: span 2; }
+.album-kart-wrap::before {
+  content: ''; position: absolute;
+  bottom: -4px; left: 6px; right: 6px; height: 100%;
+  border-radius: 24px; background: var(--antik2);
+  border: 1px solid rgba(166,123,113,0.18); z-index: 0;
+}
+.album-kart-wrap::after {
+  content: ''; position: absolute;
+  bottom: -8px; left: 12px; right: 12px; height: 100%;
+  border-radius: 24px; background: var(--antik2);
+  opacity: 0.5; border: 1px solid rgba(166,123,113,0.1); z-index: 0;
+}
+.album-kart {
+  background: var(--beyaz); border-radius: 24px; overflow: hidden;
+  border: 1px solid rgba(166,123,113,0.15);
+  box-shadow: 0 4px 20px var(--golge);
+  transition: transform 0.2s; position: relative; z-index: 1;
+}
+.album-kart-wrap:active .album-kart { transform: scale(0.97); box-shadow: 0 2px 8px rgba(212,175,55,0.15); }
+
+.album-gorsel {
+  height: 104px; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.album-kart-wrap.buyuk .album-gorsel { height: 145px; }
+
+/* Placeholder — dönem rozeti sistemi */
+.album-placeholder {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+}
+.p1 { background: linear-gradient(145deg, #F5EDE6, #EDD8C8); }
+.p2 { background: linear-gradient(145deg, #E8EEF5, #D0DCE8); }
+.p3 { background: linear-gradient(145deg, #F5EDE6, #F0D8D0); }
+.p4 { background: linear-gradient(145deg, #EAF0EA, #D0E0D0); }
+.p5 { background: linear-gradient(145deg, #F0EBF5, #DDD0E8); }
+
+/* Dönem rozeti — ikon + etiket */
+.donem-rozet {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.donem-ikon-daire {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(26,46,68,0.1);
+}
+.album-kart-wrap.buyuk .donem-ikon-daire { width: 48px; height: 48px; }
+.donem-etiket {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+  text-transform: uppercase; opacity: 0.6;
+}
+
+.album-gorsel-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(26,46,68,0.3));
+}
+.foto-rozet {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(26,46,68,0.7); backdrop-filter: blur(4px);
+  color: white; font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 20px;
+}
+.album-bilgi { padding: 10px 14px; }
+.album-kart-wrap.buyuk .album-bilgi { padding: 12px 16px; }
+.album-ad {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px; font-weight: 600; color: var(--gece); margin-bottom: 3px;
+}
+.album-kart-wrap.buyuk .album-ad { font-size: 16px; }
+.album-meta { font-size: 12px; color: var(--komur-acik); }
+
+.yeni-album-btn {
+  margin: 8px 14px 4px; padding: 13px;
+  background: transparent; border: 2px dashed rgba(166,123,113,0.3);
+  border-radius: 24px; display: flex; align-items: center; justify-content: center; gap: 10px;
+  color: var(--gul); font-size: 14px; font-weight: 500;
+  cursor: pointer; width: calc(100% - 32px); transition: background 0.15s;
+}
+.yeni-album-btn:active { background: var(--gul-cok-acik); }
+
+/* Son eklenenler */
+.son-liste { display: flex; gap: 10px; padding: 0 16px; overflow-x: auto; }
+.son-liste::-webkit-scrollbar { display: none; }
+.son-foto {
+  flex-shrink: 0; width: 76px; height: 76px;
+  border-radius: 13px; overflow: hidden; cursor: pointer;
+  position: relative; border: 1px solid rgba(166,123,113,0.15);
+  box-shadow: 0 2px 8px var(--golge); transition: transform 0.15s;
+}
+.son-foto:active { transform: scale(0.94); }
+.son-foto-ic {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.son-foto-etiket {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(26,46,68,0.7));
+  color: white; font-size: 9px; font-weight: 600;
+  padding: 14px 6px 6px; text-align: center;
+}
+
+/* ── ALT NAV ── */
+.alt-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 390px; background: rgba(249,247,242,0.97);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(166,123,113,0.15);
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 8px 0 22px; z-index: 100;
+}
+.nav-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-size: 10px; color: var(--komur-acik); cursor: pointer; font-weight: 500;
+  min-width: 56px; padding: 4px; transition: color 0.2s;
+}
+.nav-item.aktif::after {
+  content: '';
+  position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--altin);
+}
+.nav-item.aktif { color: var(--gece); }
+.nav-item svg { stroke: currentColor; transition: stroke 0.15s; }
+.nav-item:active svg { stroke: var(--altin); }
+.nav-item:active { color: var(--altin); }
+.nav-ekle {
+  width: 50px; height: 50px; background: var(--gece);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 6px 18px rgba(26,46,68,0.4);
+  margin-top: -14px; transition: transform 0.15s;
+}
+.nav-ekle:active { transform: scale(0.91); }
+
+/* ── OVERLAY / MODAL ── */
+.overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(26,46,68,0.6); backdrop-filter: blur(6px);
+  align-items: flex-end; justify-content: center;
+}
+.overlay.acik { display: flex; }
+.modal {
+  width: 100%; max-width: 390px;
+  background: var(--antik); border-radius: 28px 28px 0 0;
+  padding: 16px 0 44px;
+  animation: yukari 0.32s cubic-bezier(.25,.8,.25,1);
+  border-top: 1px solid rgba(166,123,113,0.2);
+}
+@keyframes yukari { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-tutamac {
+  width: 40px; height: 4px; background: var(--antik2);
+  border-radius: 2px; margin: 0 auto 20px;
+}
+.modal-baslik {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-weight: 600; color: var(--gece);
+  padding: 0 24px; margin-bottom: 6px;
+}
+.modal-alt-baslik { font-size: 13px; color: var(--komur-acik); padding: 0 24px; margin-bottom: 18px; line-height: 1.5; }
+.modal-secenekler { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+.modal-btn {
+  display: flex; align-items: center; gap: 16px;
+  padding: 17px 18px; background: var(--beyaz);
+  border-radius: 18px; border: 1px solid rgba(166,123,113,0.15);
+  width: 100%; text-align: left; cursor: pointer;
+  box-shadow: 0 2px 8px var(--golge); transition: background 0.15s;
+}
+.modal-btn:active { background: var(--antik2); }
+.modal-btn-ikon {
+  width: 48px; height: 48px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.mi1 { background: linear-gradient(135deg, #F5EDE6, #EDD8C8); }
+.mi2 { background: linear-gradient(135deg, #E8EEF5, #D0DCE8); }
+.mi3 { background: linear-gradient(135deg, #EAF0EA, #D0E0D0); }
+.modal-btn-metin { font-size: 15px; font-weight: 600; color: var(--gece); }
+.modal-btn-alt { font-size: 12px; color: var(--komur-acik); margin-top: 2px; }
+
+/* Akıllı gruplama */
+.ai-badge {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; margin: 0 16px 14px;
+  background: rgba(26,46,68,0.05); border-radius: 12px;
+  border: 1px solid rgba(26,46,68,0.1);
+}
+.ai-badge-metin { font-size: 12px; color: var(--gece); font-weight: 500; opacity: 0.8; }
+.gruplama-oneri { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
+.oneri-kart {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; background: var(--beyaz);
+  border-radius: 16px; border: 2px solid transparent;
+  cursor: pointer; transition: all 0.15s;
+  box-shadow: 0 2px 8px var(--golge);
+}
+.oneri-kart.secili { background: rgba(26,46,68,0.04); border-color: var(--gece); }
+.oneri-kart-ikon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.oneri-kart-bilgi { flex: 1; }
+.oneri-kart-ad { font-size: 15px; font-weight: 600; color: var(--gece); }
+.oneri-kart-detay { font-size: 12px; color: var(--komur-acik); margin-top: 2px; }
+.oneri-kart-sayi { font-size: 12px; color: var(--gece); font-weight: 600; background: var(--antik2); padding: 4px 10px; border-radius: 20px; }
+.oneri-kart.secili .oneri-kart-sayi { background: var(--gece); color: white; }
+
+/* ── ALBÜM DETAY ── */
+.detay-header {
+  padding: 42px 20px 12px; background: var(--gece);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: sticky; top: 0; z-index: 50;
+}
+.detay-header-ust { display: flex; align-items: center; gap: 14px; }
+.geri-btn {
+  width: 38px; height: 38px; padding: 10px;
+  background: rgba(255,255,255,0.1); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0;
+  transition: background 0.15s;
+}
+.geri-btn:active { background: rgba(255,255,255,0.18); }
+.geri-btn:active svg { stroke: var(--altin); }
+.detay-baslik-wrap { flex: 1; }
+.detay-baslik { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--beyaz); }
+.detay-meta-header { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.detay-wp-btn {
+  width: 38px; height: 38px; padding: 10px;
+  background: #2A9958; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; border: none; transition: opacity 0.15s;
+}
+.detay-wp-btn:active { opacity: 0.85; }
+.tarih-grup { padding: 14px 14px 6px; }
+.tarih-etiket { font-size: 11px; font-weight: 600; color: var(--komur-acik); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+.foto-izgara { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; border-radius: 16px; overflow: hidden; }
+.foto-hucre {
+  aspect-ratio: 1; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; transition: opacity 0.15s;
+}
+.foto-hucre:active { opacity: 0.8; }
+.detay-alt-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 390px; background: rgba(249,247,242,0.97);
+  backdrop-filter: blur(12px); border-top: 1px solid rgba(166,123,113,0.15);
+  padding: 12px 16px 32px; z-index: 100;
+}
+.detay-ekle-btn {
+  width: 100%; padding: 14px; background: var(--gece); color: white;
+  border: none; border-radius: 16px; font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.detay-ekle-btn:active { transform: scale(0.97); }
+
+/* ── TAKVİM ── */
+.ay-kart {
+  background: var(--beyaz); border-radius: 20px; overflow: hidden;
+  border: 1px solid rgba(166,123,113,0.15);
+  box-shadow: 0 2px 12px var(--golge); margin: 0 16px 16px;
+}
+.ay-kart-header { padding: 16px 18px; border-bottom: 1px solid rgba(166,123,113,0.1); display: flex; justify-content: space-between; align-items: center; }
+.ay-kart-baslik { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; color: var(--gece); }
+.ay-kart-sayi { font-size: 12px; color: var(--komur-acik); }
+.ay-kart-fotolar { display: flex; gap: 3px; padding: 3px; }
+.ay-foto { flex: 1; height: 80px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+
+/* ── YENİ ALBÜM ── */
+.yeni-form { padding: 24px 20px; display: flex; flex-direction: column; gap: 20px; }
+.form-label { font-size: 11px; font-weight: 600; color: var(--komur-acik); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.6px; }
+.form-input {
+  width: 100%; padding: 15px 18px;
+  background: var(--beyaz); border: 1.5px solid rgba(166,123,113,0.2);
+  border-radius: 14px; font-family: 'DM Sans', sans-serif;
+  font-size: 16px; color: var(--gece); outline: none; transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--gece); }
+.ikon-secici { display: flex; gap: 10px; flex-wrap: wrap; }
+.ikon-sec-btn {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: 1.5px solid rgba(166,123,113,0.2);
+  background: var(--beyaz); transition: all 0.15s;
+}
+.ikon-sec-btn.aktif { border-color: var(--gece); background: rgba(26,46,68,0.05); }
+.renk-secici { display: flex; gap: 10px; }
+.renk-btn { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: all 0.15s; }
+.renk-btn.aktif { border-color: var(--gece); transform: scale(1.15); }
+
+/* ── PAYLAŞIM ── */
+.paylasim-album-sec { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+.paylasim-album-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; background: var(--beyaz);
+  border-radius: 16px; border: 2px solid transparent;
+  cursor: pointer; box-shadow: 0 2px 8px var(--golge); transition: all 0.15s;
+}
+.paylasim-album-item.secili { background: rgba(26,46,68,0.04); border-color: var(--gece); }
+.paylasim-album-ikon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+.paylasim-album-bilgi { flex: 1; }
+.paylasim-album-ad { font-size: 15px; font-weight: 600; color: var(--gece); }
+.paylasim-album-sayi { font-size: 12px; color: var(--komur-acik); margin-top: 2px; }
+.paylasim-check {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid rgba(166,123,113,0.3);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.paylasim-album-item.secili .paylasim-check { background: var(--gece); border-color: var(--gece); }
+.foto-sayisi-wrap { margin: 0 16px; padding: 16px 18px; background: var(--beyaz); border-radius: 16px; border: 1px solid rgba(166,123,113,0.15); box-shadow: 0 2px 8px var(--golge); }
+.foto-sayisi-baslik { font-size: 13px; font-weight: 600; color: var(--gece); margin-bottom: 12px; }
+.foto-sayisi-secici { display: flex; gap: 8px; }
+.foto-sayisi-btn { flex: 1; padding: 10px 8px; background: var(--antik); border: 1.5px solid rgba(166,123,113,0.2); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--komur-acik); cursor: pointer; text-align: center; transition: all 0.15s; }
+.foto-sayisi-btn.aktif { background: var(--gece); border-color: var(--gece); color: white; }
+.onizleme-serit { display: flex; gap: 6px; padding: 0 16px; overflow-x: auto; }
+.onizleme-serit::-webkit-scrollbar { display: none; }
+.onizleme-foto { flex-shrink: 0; width: 72px; height: 72px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; transition: all 0.15s; box-shadow: 0 2px 8px var(--golge); }
+.onizleme-foto.secili { border-color: var(--gece); }
+.wp-gonder-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 15px; background: #2A9958; color: white; border: none;
+  border-radius: 18px; font-family: 'DM Sans', sans-serif;
+  font-size: 17px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(42,153,88,0.25); transition: transform 0.15s;
+}
+.wp-gonder-btn:active { transform: scale(0.97); }
+.info-not {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 12px 16px; background: rgba(26,46,68,0.05);
+  border-radius: 12px; margin: 0 16px;
+}
+.info-not-metin { font-size: 12px; color: var(--komur-acik); line-height: 1.5; }
+
+/* ── AYARLAR ── */
+.ayarlar-bolum { padding: 14px 14px 6px; }
+.ayarlar-bolum-baslik { font-size: 11px; font-weight: 700; color: var(--komur-acik); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 8px; }
+.ayar-satir {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 16px; background: var(--beyaz);
+  border-radius: 16px; margin-bottom: 8px; cursor: pointer;
+  border: 1px solid rgba(166,123,113,0.12);
+  box-shadow: 0 2px 8px var(--golge); transition: background 0.15s;
+}
+.ayar-satir:active { background: var(--antik2); }
+.ayar-satir:active .ayar-ikon svg { stroke: var(--altin); }
+.ayar-ikon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.ayar-metin { flex: 1; }
+.ayar-baslik { font-size: 15px; font-weight: 500; color: var(--gece); }
+.ayar-alt { font-size: 12px; color: var(--komur-acik); margin-top: 1px; }
+.ayar-ok { display: flex; align-items: center; }
+.ayar-toggle {
+  width: 44px; height: 26px; background: var(--gece);
+  border-radius: 13px; position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+}
+.ayar-toggle::after { content: ''; position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.2s; }
+.ayar-toggle.kapali { background: rgba(166,123,113,0.3); }
+.ayar-toggle.kapali::after { transform: translateX(-18px); }
+.gizlilik-banner { margin: 12px 16px; padding: 16px 18px; background: rgba(26,46,68,0.05); border: 1px solid rgba(26,46,68,0.1); border-radius: 16px; }
+.gizlilik-banner-baslik { font-size: 14px; font-weight: 600; color: var(--gece); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.gizlilik-banner-alt { font-size: 12px; color: var(--komur-acik); line-height: 1.5; }
+
+/* ── GRAIN DOKU ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+}
+
+/* ── ALT NAV ALTIN ÇİZGİ ── */
+.alt-nav::before {
+  content: '';
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 48px; height: 2px;
+  background: var(--altin);
+  border-radius: 0 0 2px 2px;
+}
+
+/* ── KART İÇ GÖLGE (hafif) ── */
+.album-kart {
+  box-shadow: 0 4px 20px var(--golge), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(166,123,113,0.08);
+}
+/* ── DETAY MENÜ ── */
+.detay-menu-btn {
+  width: 36px; height: 36px; padding: 9px;
+  background: rgba(255,255,255,0.1); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.15);
+  flex-shrink: 0; transition: background 0.15s;
+}
+.detay-menu-btn:active { background: rgba(255,255,255,0.2); }
+
+.detay-menu {
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(26,46,68,0.4);
+  backdrop-filter: blur(2px);
+}
+.detay-menu-panel {
+  position: absolute; top: 110px; right: 16px;
+  background: var(--beyaz); border-radius: 16px;
+  overflow: hidden; min-width: 200px;
+  box-shadow: 0 8px 32px rgba(26,46,68,0.2);
+  border: 1px solid rgba(166,123,113,0.15);
+  animation: fadeIn 0.18s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.95) translateY(-8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+.detay-menu-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; cursor: pointer;
+  font-size: 14px; font-weight: 500; color: var(--gece);
+  border-bottom: 1px solid rgba(166,123,113,0.08);
+  transition: background 0.12s;
+}
+.detay-menu-item:last-child { border-bottom: none; }
+.detay-menu-item:active { background: var(--antik2); }
+.detay-menu-item-sil { color: #C0392B; }
+
+/* ── ALBÜM DÜZENLE MODAL ── */
+.duzenle-form { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
+.duzenle-preview {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; background: var(--antik);
+  border-radius: 16px; margin: 0 16px;
+  border: 1px solid rgba(166,123,113,0.15);
+}
+.duzenle-preview-ikon {
+  width: 48px; height: 48px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.duzenle-preview-bilgi { flex: 1; }
+.duzenle-preview-ad { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--gece); }
+.duzenle-preview-meta { font-size: 12px; color: var(--komur-acik); margin-top: 2px; }
+
+/* ── BOŞ DURUM ── */
+.bos-durum {
+  display: flex; flex-direction: column;
+  align-items: center; padding: 32px 24px 24px;
+  min-height: calc(100vh - 180px); justify-content: center;
+}
+.bos-cerceve-wrap {
+  position: relative; width: 200px; height: 220px; margin-bottom: 32px;
+}
+.bos-cerceve {
+  position: absolute; border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+.bos-cerceve-1 {
+  width: 160px; height: 160px; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--beyaz);
+  border: 1px solid rgba(166,123,113,0.2);
+  box-shadow: 0 4px 20px rgba(26,46,68,0.1), inset 0 1px 0 rgba(255,255,255,0.9);
+  z-index: 3;
+}
+.bos-cerceve-2 {
+  width: 148px; height: 148px; bottom: 10px; left: calc(50% + 8px); transform: translateX(-50%);
+  background: var(--antik2); border: 1px solid rgba(166,123,113,0.15);
+  opacity: 0.7; z-index: 2;
+}
+.bos-cerceve-3 {
+  width: 136px; height: 136px; bottom: 0; left: calc(50% - 8px); transform: translateX(-50%);
+  background: var(--antik2); border: 1px solid rgba(166,123,113,0.1);
+  opacity: 0.4; z-index: 1;
+}
+.bos-cerceve-ikon {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.bos-cerceve-ikon-daire {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--antik2);
+  display: flex; align-items: center; justify-content: center;
+}
+.bos-cerceve-ikon-metin {
+  font-size: 11px; font-weight: 600; color: var(--gul-acik);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.bos-baslik {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 600; color: var(--gece);
+  text-align: center; margin-bottom: 8px; line-height: 1.3;
+}
+.bos-aciklama {
+  font-size: 14px; color: var(--komur-acik); text-align: center;
+  line-height: 1.6; margin-bottom: 24px; max-width: 260px;
+}
+.bos-oneriler {
+  display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;
+}
+.bos-oneri-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 14px; background: var(--beyaz);
+  border: 1px solid rgba(166,123,113,0.2); border-radius: 20px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; color: var(--gece);
+  box-shadow: 0 2px 8px var(--golge); transition: all 0.15s;
+}
+.bos-oneri-btn:active { background: var(--antik2); transform: scale(0.97); }
+.bos-ana-btn {
+  width: 100%; padding: 15px;
+  background: var(--gul); color: white; border: none; border-radius: 18px;
+  font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
+  cursor: pointer; box-shadow: 0 6px 20px rgba(166,123,113,0.35);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform 0.15s;
+}
+.bos-ana-btn:active { transform: scale(0.97); }
+
+.toast {
+  position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--gece); color: white; padding: 12px 22px; border-radius: 24px;
+  font-size: 14px; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 300;
+  white-space: nowrap; pointer-events: none; box-shadow: 0 8px 24px rgba(26,46,68,0.3);
+}
+.toast.goster { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- SVG İKON TANIMLARI — inline, CDN yok -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Nav ikonları -->
+    <symbol id="ic-album" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2.5"></rect>
+      <path d="M3 9h18M9 3v6M15 3v6"></path>
+      <rect x="7" y="13" width="4" height="4" rx="1"></rect>
+    </symbol>
+    <symbol id="ic-calendar" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2.5"></rect>
+      <path d="M16 2v4M8 2v4M3 10h18"></path>
+    </symbol>
+    <symbol id="ic-send" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path>
+    </symbol>
+    <symbol id="ic-settings" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </symbol>
+    <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke-linecap="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+    </symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke-linecap="round">
+      <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </symbol>
+    <symbol id="ic-back" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m15 18-6-6 6-6"></path>
+    </symbol>
+    <symbol id="ic-chat" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </symbol>
+    <symbol id="ic-sparkle" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"></path>
+    </symbol>
+    <symbol id="ic-lock" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="11" width="14" height="11" rx="2"></rect>
+      <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+      <circle cx="12" cy="16" r="1" fill="currentColor"></circle>
+    </symbol>
+    <!-- Dönem / kategori ikonları -->
+    <symbol id="ic-baby" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="4"></circle>
+      <path d="M8 14s-4 1-4 5h16c0-4-4-5-4-5"></path>
+    </symbol>
+    <symbol id="ic-cake" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"></path>
+      <path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 1.5 1 2 1"></path>
+      <path d="M2 21h20M12 3v4M8 7l4-4 4 4"></path>
+    </symbol>
+    <symbol id="ic-mountain" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m8 3 4 8 5-5 5 15H2L8 3z"></path>
+    </symbol>
+    <symbol id="ic-footprint" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 16v-2.38C4 11.5 2.97 10.43 3 8c.03-2.5 2-4 4-4s4 1.5 4.03 4c.04 2.44-1 3.5-1 5.62V16"></path>
+      <path d="M15 16v-2.38C15 11.5 13.97 10.43 14 8c.03-2.5 2-4 4-4s4 1.5 4.03 4c.04 2.44-1 3.5-1 5.62V16"></path>
+      <rect x="2" y="16" width="8" height="4" rx="1"></rect>
+      <rect x="13" y="16" width="8" height="4" rx="1"></rect>
+    </symbol>
+    <symbol id="ic-bath" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"></path>
+      <line x1="4" y1="12" x2="20" y2="12"></line>
+    </symbol>
+    <symbol id="ic-sun" viewBox="0 0 24 24" fill="none" stroke-linecap="round">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+    </symbol>
+    <!-- Ayarlar ikonları -->
+    <symbol id="ic-user" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path>
+    </symbol>
+    <symbol id="ic-gift" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="8" width="18" height="4" rx="1"></rect><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"></path>
+      <path d="M7.5 8a2.5 2.5 0 0 1 0-5C9 3 12 8 12 8H7.5zM16.5 8a2.5 2.5 0 0 0 0-5C15 3 12 8 12 8h4.5z"></path>
+    </symbol>
+    <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke-linecap="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+    </symbol>
+    <symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+    </symbol>
+    <symbol id="ic-bar-chart" viewBox="0 0 24 24" fill="none" stroke-linecap="round">
+      <line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>
+    </symbol>
+    <symbol id="ic-upload" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line>
+    </symbol>
+    <symbol id="ic-star" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+    </symbol>
+    <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </symbol>
+    <symbol id="ic-image" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+      <circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>
+    </symbol>
+    <symbol id="ic-camera" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+      <circle cx="12" cy="13" r="4"></circle>
+    </symbol>
+    <symbol id="ic-folder-plus" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+      <line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line>
+    </symbol>
+    <symbol id="ic-chevron-right" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Kısa yardımcı: SVG kullan -->
+<script>
+function svg(id, size, color, extra) {
+  size = size || 20; color = color || 'currentColor'; extra = extra || '';
+  return '<svg width="'+size+'" height="'+size+'" stroke="'+color+'" stroke-width="1.6" '+extra+'><use href="#'+id+'"/></svg>';
+}
+</script>
+
+<!-- ══ ONBOARDING 1 ══ -->
+<div id="ob1" class="ekran aktif">
+  <div class="ob-wrap">
+    <div class="ob-logo">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="14" width="30" height="34" rx="4" stroke="#A67B71" stroke-width="2" fill="none"></rect>
+        <rect x="18" y="22" width="30" height="34" rx="4" stroke="#1A2E44" stroke-width="2" fill="none" opacity="0.45"></rect>
+        <path d="M28 31 C28 28 32 26 32 29 C32 26 36 28 36 31 C36 34 32 38 32 38 C32 38 28 34 28 31Z" fill="#D4AF37"></path>
+      </svg>
+    </div>
+    <div class="ob-baslik">Hoş geldin<br><em>Hatıram</em>'a</div>
+    <div class="ob-aciklama">Elif'in fotoğrafları her yere dağılmış mı? Artık her kıymetli an kendi albümünde, düzenli ve huzurlu.</div>
+    <div class="ob-noktalar">
+      <div class="nokta aktif"></div><div class="nokta"></div><div class="nokta"></div>
+    </div>
+    <button class="btn-ana" onclick="gec(&#39;ob2&#39;)">Devam →</button>
+  </div>
+</div>
+
+<!-- ══ ONBOARDING 2 ══ -->
+<div id="ob2" class="ekran">
+  <div class="ob-wrap">
+    <div class="ob-logo">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+        <rect x="10" y="20" width="44" height="28" rx="5" stroke="#1A2E44" stroke-width="2" fill="rgba(26,46,68,0.05)"></rect>
+        <line x1="10" y1="30" x2="54" y2="30" stroke="#A67B71" stroke-width="1.5"></line>
+        <rect x="16" y="35" width="10" height="8" rx="2" fill="#D4AF37" opacity="0.6"></rect>
+        <rect x="30" y="35" width="10" height="8" rx="2" fill="#A67B71" opacity="0.4"></rect>
+        <path d="M20 16 L20 24 M32 14 L32 24 M44 16 L44 24" stroke="#1A2E44" stroke-width="2" stroke-linecap="round"></path>
+      </svg>
+    </div>
+    <div class="ob-baslik">Galerini bir kerede<br><em>düzenle</em></div>
+    <div class="ob-aciklama">Fotoğrafların çekim tarihini okuyarak hangi albüme ait olduğunu önerir. Sen sadece onayla.</div>
+    <div class="ob-noktalar">
+      <div class="nokta"></div><div class="nokta aktif"></div><div class="nokta"></div>
+    </div>
+    <button class="btn-ana" onclick="gec(&#39;ob3&#39;)">Devam →</button>
+    <button class="btn-ikincil" onclick="gec(&#39;ob1&#39;)">← Geri</button>
+  </div>
+</div>
+
+<!-- ══ ONBOARDING 3 ══ -->
+<div id="ob3" class="ekran">
+  <div class="ob-wrap">
+    <div class="ob-logo">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+        <rect x="16" y="30" width="32" height="22" rx="4" stroke="#1A2E44" stroke-width="2" fill="rgba(26,46,68,0.05)"></rect>
+        <path d="M24 30 L24 24 C24 19 40 19 40 24 L40 30" stroke="#1A2E44" stroke-width="2" stroke-linecap="round"></path>
+        <circle cx="32" cy="41" r="3" fill="#D4AF37"></circle>
+        <line x1="32" y1="44" x2="32" y2="47" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"></line>
+      </svg>
+    </div>
+    <div class="ob-baslik">Fotoğrafların<br>sadece <em>sende</em></div>
+    <div class="gizlilik-rozet">
+      <svg width="28" height="28" stroke="#1A2E44" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" flex-shrink="0"><use href="#ic-lock"></use></svg>
+      <div class="gizlilik-rozet-metin">
+        <strong>Bulut yok. Sunucu yok.</strong>
+        Fotoğrafların yalnızca senin telefonunda durur. Hiçbir sunucuya gönderilmez.
+      </div>
+    </div>
+    <div class="ob-noktalar">
+      <div class="nokta"></div><div class="nokta"></div><div class="nokta aktif"></div>
+    </div>
+    <button class="btn-ana" onclick="gec(&#39;anasayfa&#39;)">Hadi Başlayalım!</button>
+    <button class="btn-ikincil" onclick="gec(&#39;ob2&#39;)">← Geri</button>
+  </div>
+</div>
+
+<!-- ══ ANA SAYFA ══ -->
+<div id="anasayfa" class="ekran">
+  <div class="ana-header">
+    <div class="header-ust">
+      <div>
+        <div class="header-selamlama">Merhaba Ömer</div>
+        <div class="header-isim">Elif'in Albümleri</div>
+      </div>
+      <div class="header-sag">
+        <div class="ikon-btn" onclick="modalAc(&#39;gruplama-modal&#39;)">
+          <svg width="18" height="18" stroke="rgba(255,255,255,0.8)" stroke-width="1.6" fill="none"><use href="#ic-sparkle"></use></svg>
+        </div>
+        <div class="ikon-btn">
+          <svg width="18" height="18" stroke="rgba(255,255,255,0.8)" stroke-width="1.6" fill="none"><use href="#ic-search"></use></svg>
+        </div>
+      </div>
+    </div>
+    <div class="gizlilik-cubugu" style="margin: 12px -20px -16px; padding: 7px 20px;">
+      <div class="gizlilik-dot"></div>
+      <div class="gizlilik-metin">Anıların yalnızca bu telefonda · Bulut yok</div>
+    </div>
+  </div>
+
+  <div style="background:var(--gece);">
+    <div class="kategori-wrap" style="margin-top:-1px;">
+      <div class="kategori-sekme">
+        <div class="sek aktif">Tümü</div>
+        <div class="sek">Büyüme</div>
+        <div class="sek">Tatil</div>
+        <div class="sek">Özel Günler</div>
+        <div class="sek">Aile</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-icerik">
+
+    <!-- Demo toggle — prototype için -->
+    <div style="display:flex; align-items:center; justify-content:flex-end; padding:8px 16px 0;">
+      <button onclick="bosModToggle()" style="font-size:11px; color:var(--gul); background:none; border:1px solid rgba(166,123,113,0.3); border-radius:12px; padding:4px 10px; cursor:pointer; font-family:&#39;DM Sans&#39;,sans-serif;">
+        Boş / Dolu görünüm
+      </button>
+    </div>
+
+    <!-- BOŞ DURUM -->
+    <div id="bos-durum-wrap" class="bos-durum" style="display:none;">
+      <div class="bos-cerceve-wrap">
+        <div class="bos-cerceve bos-cerceve-3"></div>
+        <div class="bos-cerceve bos-cerceve-2"></div>
+        <div class="bos-cerceve bos-cerceve-1">
+          <div class="bos-cerceve-ikon">
+            <div class="bos-cerceve-ikon-daire">
+              <svg width="32" height="32" stroke="#A67B71" stroke-width="1.4" fill="none"><use href="#ic-baby"></use></svg>
+            </div>
+            <span class="bos-cerceve-ikon-metin">İlk anı seni bekliyor</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bos-baslik">Henüz hiç anın yok.</div>
+      <div class="bos-aciklama">İlkini ekleyelim. Elif'in her kıymetli karesi burada güvende olacak.</div>
+
+      <div class="bos-oneriler">
+        <div class="bos-oneri-btn" onclick="modalAc(&#39;ekle-modal&#39;)">
+          <svg width="14" height="14" stroke="#A67B71" stroke-width="1.6" fill="none"><use href="#ic-baby"></use></svg>
+          İlk 3 Ay
+        </div>
+        <div class="bos-oneri-btn" onclick="modalAc(&#39;ekle-modal&#39;)">
+          <svg width="14" height="14" stroke="#6B7AAA" stroke-width="1.6" fill="none"><use href="#ic-cake"></use></svg>
+          Doğum Günü
+        </div>
+        <div class="bos-oneri-btn" onclick="modalAc(&#39;ekle-modal&#39;)">
+          <svg width="14" height="14" stroke="#5A7A5C" stroke-width="1.6" fill="none"><use href="#ic-mountain"></use></svg>
+          Tatil
+        </div>
+      </div>
+
+      <button class="bos-ana-btn" onclick="modalAc(&#39;ekle-modal&#39;)">
+        <svg width="18" height="18" stroke="white" stroke-width="2" fill="none"><use href="#ic-plus"></use></svg>
+        İlk Anımı Ekle
+      </button>
+    </div>
+
+    <!-- DOLU DURUM -->
+    <div id="dolu-durum-wrap">
+    <div class="son-liste">
+      <div class="son-foto" onclick="gec(&#39;album-detay&#39;)">
+        <div class="son-foto-ic p1">
+          <svg width="32" height="32" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.6"><use href="#ic-baby"></use></svg>
+        </div>
+        <div class="son-foto-etiket">İlk 3 Ay</div>
+      </div>
+      <div class="son-foto">
+        <div class="son-foto-ic p4">
+          <svg width="32" height="32" stroke="#5A7A5C" stroke-width="1.4" fill="none" opacity="0.6"><use href="#ic-mountain"></use></svg>
+        </div>
+        <div class="son-foto-etiket">Tatil</div>
+      </div>
+      <div class="son-foto">
+        <div class="son-foto-ic p2">
+          <svg width="32" height="32" stroke="#6B7AAA" stroke-width="1.4" fill="none" opacity="0.6"><use href="#ic-cake"></use></svg>
+        </div>
+        <div class="son-foto-etiket">1. Doğum Gün</div>
+      </div>
+      <div class="son-foto">
+        <div class="son-foto-ic p3">
+          <svg width="32" height="32" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.6"><use href="#ic-sun"></use></svg>
+        </div>
+        <div class="son-foto-etiket">Bahçe</div>
+      </div>
+      <div class="son-foto">
+        <div class="son-foto-ic p5">
+          <svg width="32" height="32" stroke="#8B6BAA" stroke-width="1.4" fill="none" opacity="0.6"><use href="#ic-footprint"></use></svg>
+        </div>
+        <div class="son-foto-etiket">İlk Adım</div>
+      </div>
+    </div>
+
+    <div class="bolum-satir">
+      <div class="bolum-baslik">Albümler</div>
+      <div class="bolum-link">Tümünü gör</div>
+    </div>
+
+    <div class="album-izgara">
+
+      <div class="album-kart-wrap buyuk" onclick="gec(&#39;album-detay&#39;)">
+        <div class="album-kart">
+          <div class="album-gorsel p1">
+            <div class="album-placeholder p1">
+              <div class="donem-rozet">
+                <div class="donem-ikon-daire">
+                  <svg width="28" height="28" stroke="#A67B71" stroke-width="1.5" fill="none"><use href="#ic-baby"></use></svg>
+                </div>
+                <span class="donem-etiket" style="color:#A67B71;">İlk 3 Ay</span>
+              </div>
+            </div>
+            <div class="album-gorsel-overlay"></div>
+            <div class="foto-rozet">47 kare</div>
+          </div>
+          <div class="album-bilgi">
+            <div class="album-ad">İlk 3 Ay</div>
+            <div class="album-meta">Ocak – Mart 2024</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="album-kart-wrap" onclick="gec(&#39;album-detay&#39;)">
+        <div class="album-kart">
+          <div class="album-gorsel p2">
+            <div class="album-placeholder p2">
+              <div class="donem-rozet">
+                <div class="donem-ikon-daire">
+                  <svg width="22" height="22" stroke="#6B7AAA" stroke-width="1.5" fill="none"><use href="#ic-cake"></use></svg>
+                </div>
+                <span class="donem-etiket" style="color:#6B7AAA;">Doğum Günü</span>
+              </div>
+            </div>
+            <div class="album-gorsel-overlay"></div>
+            <div class="foto-rozet">32</div>
+          </div>
+          <div class="album-bilgi">
+            <div class="album-ad">1. Doğum Günü</div>
+            <div class="album-meta">Ocak 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="album-kart-wrap" onclick="gec(&#39;album-detay&#39;)">
+        <div class="album-kart">
+          <div class="album-gorsel p4">
+            <div class="album-placeholder p4">
+              <div class="donem-rozet">
+                <div class="donem-ikon-daire">
+                  <svg width="22" height="22" stroke="#5A7A5C" stroke-width="1.5" fill="none"><use href="#ic-mountain"></use></svg>
+                </div>
+                <span class="donem-etiket" style="color:#5A7A5C;">Tatil</span>
+              </div>
+            </div>
+            <div class="album-gorsel-overlay"></div>
+            <div class="foto-rozet">61</div>
+          </div>
+          <div class="album-bilgi">
+            <div class="album-ad">Bolu Tatili</div>
+            <div class="album-meta">Ağustos 2024</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="album-kart-wrap" onclick="gec(&#39;album-detay&#39;)">
+        <div class="album-kart">
+          <div class="album-gorsel p5">
+            <div class="album-placeholder p5">
+              <div class="donem-rozet">
+                <div class="donem-ikon-daire">
+                  <svg width="22" height="22" stroke="#8B6BAA" stroke-width="1.5" fill="none"><use href="#ic-footprint"></use></svg>
+                </div>
+                <span class="donem-etiket" style="color:#8B6BAA;">İlk Adım</span>
+              </div>
+            </div>
+            <div class="album-gorsel-overlay"></div>
+            <div class="foto-rozet">14</div>
+          </div>
+          <div class="album-bilgi">
+            <div class="album-ad">İlk Adımlar</div>
+            <div class="album-meta">Mart 2025</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="yeni-album-btn" onclick="gec(&#39;yeni-album&#39;)">
+      <svg width="18" height="18" stroke="var(--gul)" stroke-width="1.6" fill="none"><use href="#ic-plus"></use></svg>
+      Yeni Albüm Aç
+    </button>
+
+    </div><!-- /dolu-durum-wrap -->
+
+  </div><!-- /scroll-icerik -->
+
+  <div class="alt-nav">
+    <div class="nav-item aktif">
+      <svg width="20" height="20" stroke="var(--gece)" stroke-width="1.6" fill="none"><use href="#ic-album"></use></svg>
+      <span>Albümler</span>
+    </div>
+    <div class="nav-item" onclick="gec(&#39;takvim-ekran&#39;)">
+      <svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-calendar"></use></svg>
+      <span>Takvim</span>
+    </div>
+    <div class="nav-ekle" onclick="modalAc(&#39;ekle-modal&#39;)">
+      <svg width="26" height="26" stroke="#D4AF37" stroke-width="2.5" fill="none"><use href="#ic-plus"></use></svg>
+    </div>
+    <div class="nav-item" onclick="gec(&#39;paylasim-ekran&#39;)">
+      <svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-send"></use></svg>
+      <span>Paylaş</span>
+    </div>
+    <div class="nav-item" onclick="gec(&#39;ayarlar-ekran&#39;)">
+      <svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-settings"></use></svg>
+      <span>Ayarlar</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ALBÜM DETAY ══ -->
+<div id="album-detay" class="ekran">
+  <div class="detay-header">
+    <div class="detay-header-ust">
+      <div class="geri-btn" onclick="gec(&#39;anasayfa&#39;)">
+        <svg width="18" height="18" stroke="white" stroke-width="2" fill="none"><use href="#ic-back"></use></svg>
+      </div>
+      <div class="detay-baslik-wrap">
+        <div class="detay-baslik">İlk 3 Ay</div>
+        <div class="detay-meta-header">47 kıymetli kare · Ocak – Mart 2024</div>
+      </div>
+      <button class="detay-wp-btn" onclick="wpPaylasim()">
+        <svg width="18" height="18" stroke="white" stroke-width="1.6" fill="none"><use href="#ic-chat"></use></svg>
+      </button>
+      <button class="detay-menu-btn" onclick="menuAc()">
+        <svg width="18" height="18" stroke="white" stroke-width="2" fill="none" stroke-linecap="round">
+          <circle cx="12" cy="5" r="1" fill="white"></circle><circle cx="12" cy="12" r="1" fill="white"></circle><circle cx="12" cy="19" r="1" fill="white"></circle>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Açılır menü -->
+  <div id="detay-menu" class="detay-menu" style="display:none;" onclick="menuKapat()">
+    <div class="detay-menu-panel" onclick="event.stopPropagation()">
+      <div class="detay-menu-item" onclick="modalAc(&#39;album-duzenle-modal&#39;); menuKapat()">
+        <svg width="18" height="18" stroke="var(--gece)" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+        </svg>
+        Albümü Düzenle
+      </div>
+      <div class="detay-menu-item" onclick="toast(&#39;WhatsApp\&#39;ta paylaşılıyor...&#39;); menuKapat()">
+        <svg width="18" height="18" stroke="var(--gece)" stroke-width="1.6" fill="none"><use href="#ic-chat"></use></svg>
+        WhatsApp'ta Paylaş
+      </div>
+      <div class="detay-menu-item detay-menu-item-sil" onclick="toast(&#39;Albüm silindi&#39;); menuKapat(); setTimeout(() =&gt; gec(\&#39;anasayfa\&#39;), 800)">
+        <svg width="18" height="18" stroke="#C0392B" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+        </svg>
+        Albümü Sil
+      </div>
+    </div>
+  </div>
+  <div class="scroll-icerik">
+    <div class="tarih-grup">
+      <div class="tarih-etiket">Mart 2024</div>
+      <div class="foto-izgara">
+        <div class="foto-hucre p1"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-baby"></use></svg></div>
+        <div class="foto-hucre p2"><svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-image"></use></svg></div>
+        <div class="foto-hucre p3"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-sun"></use></svg></div>
+        <div class="foto-hucre p4"><svg width="24" height="24" stroke="#5A7A5C" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-image"></use></svg></div>
+        <div class="foto-hucre p1"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-baby"></use></svg></div>
+        <div class="foto-hucre p5"><svg width="24" height="24" stroke="#8B6BAA" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-image"></use></svg></div>
+      </div>
+    </div>
+    <div class="tarih-grup">
+      <div class="tarih-etiket">Şubat 2024</div>
+      <div class="foto-izgara">
+        <div class="foto-hucre p3"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-image"></use></svg></div>
+        <div class="foto-hucre p4"><svg width="24" height="24" stroke="#5A7A5C" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-baby"></use></svg></div>
+        <div class="foto-hucre p2"><svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-footprint"></use></svg></div>
+        <div class="foto-hucre p5"><svg width="24" height="24" stroke="#8B6BAA" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-bath"></use></svg></div>
+        <div class="foto-hucre p1"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-image"></use></svg></div>
+        <div class="foto-hucre p3"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-sun"></use></svg></div>
+      </div>
+    </div>
+    <div class="tarih-grup">
+      <div class="tarih-etiket">Ocak 2024</div>
+      <div class="foto-izgara">
+        <div class="foto-hucre p2"><svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-image"></use></svg></div>
+        <div class="foto-hucre p1"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-baby"></use></svg></div>
+        <div class="foto-hucre p4"><svg width="24" height="24" stroke="#5A7A5C" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-image"></use></svg></div>
+        <div class="foto-hucre p3"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-baby"></use></svg></div>
+        <div class="foto-hucre p5"><svg width="24" height="24" stroke="#8B6BAA" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-footprint"></use></svg></div>
+        <div class="foto-hucre p2"><svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-image"></use></svg></div>
+      </div>
+    </div>
+  </div>
+  <div class="detay-alt-bar">
+    <button class="detay-ekle-btn" onclick="modalAc(&#39;ekle-modal&#39;)">
+      <svg width="18" height="18" stroke="white" stroke-width="2" fill="none"><use href="#ic-plus"></use></svg>
+      Fotoğraf Ekle
+    </button>
+  </div>
+</div>
+
+<!-- ══ TAKVİM ══ -->
+<div id="takvim-ekran" class="ekran">
+  <div class="ana-header">
+    <div class="header-ust">
+      <div><div class="header-selamlama">Zaman tüneli</div><div class="header-isim">Takvim</div></div>
+      <div class="ikon-btn" onclick="gec(&#39;anasayfa&#39;)">
+        <svg width="18" height="18" stroke="rgba(255,255,255,0.8)" stroke-width="2" fill="none"><use href="#ic-back"></use></svg>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-icerik" style="padding-top:16px;">
+
+    <!-- Demo toggle -->
+    <div style="display:flex; align-items:center; justify-content:flex-end; padding:0 16px 8px;">
+      <button onclick="takvimiToggle()" style="font-size:11px; color:var(--gul); background:none; border:1px solid rgba(166,123,113,0.3); border-radius:12px; padding:4px 10px; cursor:pointer; font-family:&#39;DM Sans&#39;,sans-serif;">
+        Boş / Dolu görünüm
+      </button>
+    </div>
+
+    <!-- TAKVİM BOŞ DURUM -->
+    <div id="takvim-bos" class="bos-durum" style="display:none; min-height:calc(100vh - 200px);">
+      <div class="bos-cerceve-wrap">
+        <div class="bos-cerceve bos-cerceve-3"></div>
+        <div class="bos-cerceve bos-cerceve-2"></div>
+        <div class="bos-cerceve bos-cerceve-1">
+          <div class="bos-cerceve-ikon">
+            <div class="bos-cerceve-ikon-daire">
+              <svg width="32" height="32" stroke="#1A2E44" stroke-width="1.4" fill="none"><use href="#ic-calendar"></use></svg>
+            </div>
+            <span class="bos-cerceve-ikon-metin">Zaman tünelin boş</span>
+          </div>
+        </div>
+      </div>
+      <div class="bos-baslik">Henüz hiç anın yok.</div>
+      <div class="bos-aciklama">İlk fotoğrafını yüklediğinde takvimin dolmaya başlar ve Elif'in büyüme yolculuğunu görebilirsin.</div>
+      <button class="bos-ana-btn" onclick="gec(&#39;anasayfa&#39;); modalAc(&#39;ekle-modal&#39;)">
+        <svg width="18" height="18" stroke="white" stroke-width="2" fill="none"><use href="#ic-plus"></use></svg>
+        İlk Anımı Ekle
+      </button>
+    </div>
+
+    <!-- TAKVİM DOLU DURUM -->
+    <div id="takvim-dolu">
+    <div class="ay-kart">
+      <div class="ay-kart-header"><div class="ay-kart-baslik">Mart 2024</div><div class="ay-kart-sayi">23 fotoğraf</div></div>
+      <div class="ay-kart-fotolar">
+        <div class="ay-foto p1" style="align-items:center;justify-content:center;display:flex;"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-baby"></use></svg></div>
+        <div class="ay-foto p2" style="align-items:center;justify-content:center;display:flex;"><svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-image"></use></svg></div>
+        <div class="ay-foto p3" style="align-items:center;justify-content:center;display:flex;"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-sun"></use></svg></div>
+      </div>
+    </div>
+    <div class="ay-kart">
+      <div class="ay-kart-header"><div class="ay-kart-baslik">Şubat 2024</div><div class="ay-kart-sayi">18 fotoğraf</div></div>
+      <div class="ay-kart-fotolar">
+        <div class="ay-foto p4" style="align-items:center;justify-content:center;display:flex;"><svg width="24" height="24" stroke="#5A7A5C" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-footprint"></use></svg></div>
+        <div class="ay-foto p5" style="align-items:center;justify-content:center;display:flex;"><svg width="24" height="24" stroke="#8B6BAA" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-image"></use></svg></div>
+        <div class="ay-foto p2" style="align-items:center;justify-content:center;display:flex;"><svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.4" fill="none" opacity="0.5"><use href="#ic-bath"></use></svg></div>
+      </div>
+    </div>
+    </div><!-- /takvim-dolu -->
+  </div>
+  <div class="alt-nav">
+    <div class="nav-item" onclick="gec(&#39;anasayfa&#39;)"><svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-album"></use></svg><span>Albümler</span></div>
+    <div class="nav-item aktif"><svg width="20" height="20" stroke="var(--gece)" stroke-width="1.6" fill="none"><use href="#ic-calendar"></use></svg><span>Takvim</span></div>
+    <div class="nav-ekle" onclick="modalAc(&#39;ekle-modal&#39;)"><svg width="26" height="26" stroke="#D4AF37" stroke-width="2.5" fill="none"><use href="#ic-plus"></use></svg></div>
+    <div class="nav-item" onclick="gec(&#39;paylasim-ekran&#39;)"><svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-send"></use></svg><span>Paylaş</span></div>
+    <div class="nav-item" onclick="gec(&#39;ayarlar-ekran&#39;)"><svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-settings"></use></svg><span>Ayarlar</span></div>
+  </div>
+</div>
+
+<!-- ══ YENİ ALBÜM ══ -->
+<div id="yeni-album" class="ekran">
+  <div class="ana-header">
+    <div class="header-ust">
+      <div class="ikon-btn" onclick="gec(&#39;anasayfa&#39;)"><svg width="18" height="18" stroke="rgba(255,255,255,0.8)" stroke-width="2" fill="none"><use href="#ic-back"></use></svg></div>
+      <div style="flex:1;padding-left:14px;"><div class="header-isim">Yeni Albüm</div></div>
+    </div>
+  </div>
+  <div class="scroll-icerik">
+    <div class="yeni-form">
+      <div>
+        <div class="form-label">Albüm Adı</div>
+        <input class="form-input" type="text" placeholder="Örn: İlk Adımlar, Kış Tatili...">
+      </div>
+      <div>
+        <div class="form-label">Simge Seç</div>
+        <div class="ikon-secici">
+          <div class="ikon-sec-btn aktif" onclick="ikonSec(this)"><svg width="26" height="26" stroke="#A67B71" stroke-width="1.5" fill="none"><use href="#ic-baby"></use></svg></div>
+          <div class="ikon-sec-btn" onclick="ikonSec(this)"><svg width="26" height="26" stroke="#6B7AAA" stroke-width="1.5" fill="none"><use href="#ic-cake"></use></svg></div>
+          <div class="ikon-sec-btn" onclick="ikonSec(this)"><svg width="26" height="26" stroke="#5A7A5C" stroke-width="1.5" fill="none"><use href="#ic-mountain"></use></svg></div>
+          <div class="ikon-sec-btn" onclick="ikonSec(this)"><svg width="26" height="26" stroke="#8B6BAA" stroke-width="1.5" fill="none"><use href="#ic-footprint"></use></svg></div>
+          <div class="ikon-sec-btn" onclick="ikonSec(this)"><svg width="26" height="26" stroke="#1A2E44" stroke-width="1.5" fill="none"><use href="#ic-sun"></use></svg></div>
+          <div class="ikon-sec-btn" onclick="ikonSec(this)"><svg width="26" height="26" stroke="#A67B71" stroke-width="1.5" fill="none"><use href="#ic-bath"></use></svg></div>
+        </div>
+      </div>
+      <div>
+        <div class="form-label">Kapak Rengi</div>
+        <div class="renk-secici">
+          <div class="renk-btn aktif" style="background:linear-gradient(135deg,#F5EDE6,#EDD8C8);" onclick="renkSec(this)"></div>
+          <div class="renk-btn" style="background:linear-gradient(135deg,#E8EEF5,#D0DCE8);" onclick="renkSec(this)"></div>
+          <div class="renk-btn" style="background:linear-gradient(135deg,#EAF0EA,#D0E0D0);" onclick="renkSec(this)"></div>
+          <div class="renk-btn" style="background:linear-gradient(135deg,#F0EBF5,#DDD0E8);" onclick="renkSec(this)"></div>
+          <div class="renk-btn" style="background:linear-gradient(135deg,#F5EDEB,#EBDAD8);" onclick="renkSec(this)"></div>
+        </div>
+      </div>
+      <div>
+        <div class="form-label">Tarih Aralığı (isteğe bağlı)</div>
+        <div style="display:flex;gap:10px;">
+          <input class="form-input" type="month" style="flex:1;">
+          <input class="form-input" type="month" style="flex:1;">
+        </div>
+      </div>
+      <button class="btn-ana" onclick="albumOlustur()">Albümü Oluştur</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAYLAŞIM ══ -->
+<div id="paylasim-ekran" class="ekran">
+  <div class="ana-header">
+    <div class="header-ust">
+      <div><div class="header-selamlama">WhatsApp ile</div><div class="header-isim">Fotoğraf Paylaş</div></div>
+      <div class="ikon-btn" onclick="gec(&#39;anasayfa&#39;)"><svg width="18" height="18" stroke="rgba(255,255,255,0.8)" stroke-width="2" fill="none"><use href="#ic-back"></use></svg></div>
+    </div>
+  </div>
+  <div class="scroll-icerik">
+    <div class="info-not" style="margin:16px 16px 0;">
+      <svg width="16" height="16" stroke="var(--komur-acik)" stroke-width="1.6" fill="none" style="flex-shrink:0;margin-top:1px;"><use href="#ic-chat"></use></svg>
+      <div class="info-not-metin">Seçtiğin fotoğraflar doğrudan WhatsApp'a aktarılır. Sunucuya gitmez, fotoğraflar yalnızca senin telefonunda kalır.</div>
+    </div>
+    <div class="bolum-satir"><div class="bolum-baslik">Albüm Seç</div></div>
+    <div class="paylasim-album-sec">
+      <div class="paylasim-album-item secili" onclick="paylasimAlbumSec(this)">
+        <div class="paylasim-album-ikon p1"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.5" fill="none"><use href="#ic-baby"></use></svg></div>
+        <div class="paylasim-album-bilgi"><div class="paylasim-album-ad">İlk 3 Ay</div><div class="paylasim-album-sayi">47 fotoğraf</div></div>
+        <div class="paylasim-check"><svg width="12" height="12" stroke="white" stroke-width="2.5" fill="none"><use href="#ic-check"></use></svg></div>
+      </div>
+      <div class="paylasim-album-item" onclick="paylasimAlbumSec(this)">
+        <div class="paylasim-album-ikon p2"><svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.5" fill="none"><use href="#ic-cake"></use></svg></div>
+        <div class="paylasim-album-bilgi"><div class="paylasim-album-ad">1. Doğum Günü</div><div class="paylasim-album-sayi">32 fotoğraf</div></div>
+        <div class="paylasim-check"></div>
+      </div>
+      <div class="paylasim-album-item" onclick="paylasimAlbumSec(this)">
+        <div class="paylasim-album-ikon p4"><svg width="24" height="24" stroke="#5A7A5C" stroke-width="1.5" fill="none"><use href="#ic-mountain"></use></svg></div>
+        <div class="paylasim-album-bilgi"><div class="paylasim-album-ad">Bolu Tatili</div><div class="paylasim-album-sayi">61 fotoğraf</div></div>
+        <div class="paylasim-check"></div>
+      </div>
+    </div>
+    <div class="bolum-satir" style="padding-top:24px;"><div class="bolum-baslik">Kaç Fotoğraf?</div></div>
+    <div class="foto-sayisi-wrap">
+      <div class="foto-sayisi-baslik">Gönderilecek fotoğraf sayısını seç</div>
+      <div class="foto-sayisi-secici">
+        <div class="foto-sayisi-btn" onclick="fotoSayiSec(this)">Son 5</div>
+        <div class="foto-sayisi-btn aktif" onclick="fotoSayiSec(this)">Son 10</div>
+        <div class="foto-sayisi-btn" onclick="fotoSayiSec(this)">Son 20</div>
+        <div class="foto-sayisi-btn" onclick="fotoSayiSec(this)">Tümü</div>
+      </div>
+    </div>
+    <div class="bolum-satir" style="padding-top:20px;">
+      <div class="bolum-baslik">Önizleme</div>
+      <div class="bolum-link" onclick="onizlemeToggle()">Tümünü seç</div>
+    </div>
+    <div class="onizleme-serit">
+      <div class="onizleme-foto p1 secili" onclick="onizlemeSec(this)"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.6"><use href="#ic-baby"></use></svg></div>
+      <div class="onizleme-foto p2 secili" onclick="onizlemeSec(this)"><svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.4" fill="none" opacity="0.6"><use href="#ic-image"></use></svg></div>
+      <div class="onizleme-foto p3 secili" onclick="onizlemeSec(this)"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.6"><use href="#ic-sun"></use></svg></div>
+      <div class="onizleme-foto p4 secili" onclick="onizlemeSec(this)"><svg width="24" height="24" stroke="#5A7A5C" stroke-width="1.4" fill="none" opacity="0.6"><use href="#ic-image"></use></svg></div>
+      <div class="onizleme-foto p1 secili" onclick="onizlemeSec(this)"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.4" fill="none" opacity="0.6"><use href="#ic-baby"></use></svg></div>
+      <div class="onizleme-foto p5" onclick="onizlemeSec(this)"><svg width="24" height="24" stroke="#8B6BAA" stroke-width="1.4" fill="none" opacity="0.4"><use href="#ic-image"></use></svg></div>
+      <div class="onizleme-foto p2" onclick="onizlemeSec(this)"><svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.4" fill="none" opacity="0.4"><use href="#ic-footprint"></use></svg></div>
+    </div>
+    <div style="padding:24px 16px 16px;">
+      <button class="wp-gonder-btn" onclick="wpGonder()">
+        <svg width="22" height="22" stroke="white" stroke-width="1.6" fill="none"><use href="#ic-chat"></use></svg>
+        WhatsApp'ta Gönder
+      </button>
+    </div>
+    <div class="info-not" style="margin-bottom:16px;">
+      <svg width="16" height="16" stroke="var(--komur-acik)" stroke-width="1.6" fill="none" style="flex-shrink:0;margin-top:1px;"><use href="#ic-lock"></use></svg>
+      <div class="info-not-metin">Fotoğraflar WhatsApp üzerinden gönderilir. Hatıram sunucusuna hiçbir şey gitmez.</div>
+    </div>
+  </div>
+  <div class="alt-nav">
+    <div class="nav-item" onclick="gec(&#39;anasayfa&#39;)"><svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-album"></use></svg><span>Albümler</span></div>
+    <div class="nav-item" onclick="gec(&#39;takvim-ekran&#39;)"><svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-calendar"></use></svg><span>Takvim</span></div>
+    <div class="nav-ekle" onclick="modalAc(&#39;ekle-modal&#39;)"><svg width="26" height="26" stroke="#D4AF37" stroke-width="2.5" fill="none"><use href="#ic-plus"></use></svg></div>
+    <div class="nav-item aktif"><svg width="20" height="20" stroke="var(--gece)" stroke-width="1.6" fill="none"><use href="#ic-send"></use></svg><span>Paylaş</span></div>
+    <div class="nav-item" onclick="gec(&#39;ayarlar-ekran&#39;)"><svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-settings"></use></svg><span>Ayarlar</span></div>
+  </div>
+</div>
+
+<!-- ══ AYARLAR ══ -->
+<div id="ayarlar-ekran" class="ekran">
+  <div class="ana-header">
+    <div class="header-ust">
+      <div class="ikon-btn" onclick="gec(&#39;anasayfa&#39;)"><svg width="18" height="18" stroke="rgba(255,255,255,0.8)" stroke-width="2" fill="none"><use href="#ic-back"></use></svg></div>
+      <div style="flex:1;padding-left:14px;"><div class="header-isim">Ayarlar</div></div>
+    </div>
+  </div>
+  <div class="scroll-icerik">
+    <div class="gizlilik-banner" style="margin-top:16px;">
+      <div class="gizlilik-banner-baslik">
+        <svg width="16" height="16" stroke="var(--gece)" stroke-width="1.6" fill="none"><use href="#ic-lock"></use></svg>
+        Fotoğrafların yalnızca bu telefonda
+      </div>
+      <div class="gizlilik-banner-alt">Hiçbir fotoğraf sunucuya gönderilmez. Bulut depolama yok. Veriler tamamen sende.</div>
+    </div>
+
+    <div class="ayarlar-bolum">
+      <div class="ayarlar-bolum-baslik">Genel</div>
+      <div class="ayar-satir">
+        <div class="ayar-ikon" style="background:#F5EDE6;"><svg width="20" height="20" stroke="#A67B71" stroke-width="1.6" fill="none"><use href="#ic-user"></use></svg></div>
+        <div class="ayar-metin"><div class="ayar-baslik">Çocuk Adı</div><div class="ayar-alt">Elif</div></div>
+        <div class="ayar-ok"><svg width="16" height="16" stroke="var(--gul-acik)" stroke-width="2" fill="none"><use href="#ic-chevron-right"></use></svg></div>
+      </div>
+      <div class="ayar-satir">
+        <div class="ayar-ikon" style="background:#E8EEF5;"><svg width="20" height="20" stroke="#6B7AAA" stroke-width="1.6" fill="none"><use href="#ic-gift"></use></svg></div>
+        <div class="ayar-metin"><div class="ayar-baslik">Doğum Tarihi</div><div class="ayar-alt">15 Ocak 2024</div></div>
+        <div class="ayar-ok"><svg width="16" height="16" stroke="var(--gul-acik)" stroke-width="2" fill="none"><use href="#ic-chevron-right"></use></svg></div>
+      </div>
+      <div class="ayar-satir">
+        <div class="ayar-ikon" style="background:#EAF0EA;"><svg width="20" height="20" stroke="#5A7A5C" stroke-width="1.6" fill="none"><use href="#ic-globe"></use></svg></div>
+        <div class="ayar-metin"><div class="ayar-baslik">Dil</div><div class="ayar-alt">Türkçe</div></div>
+        <div class="ayar-ok"><svg width="16" height="16" stroke="var(--gul-acik)" stroke-width="2" fill="none"><use href="#ic-chevron-right"></use></svg></div>
+      </div>
+    </div>
+
+    <div class="ayarlar-bolum">
+      <div class="ayarlar-bolum-baslik">Bildirimler</div>
+      <div class="ayar-satir">
+        <div class="ayar-ikon" style="background:#F5EDEB;"><svg width="20" height="20" stroke="#A67B71" stroke-width="1.6" fill="none"><use href="#ic-calendar"></use></svg></div>
+        <div class="ayar-metin"><div class="ayar-baslik">"O Gün" Hatırlatması</div><div class="ayar-alt">Geçen yıl bugün — Elif'in anıları</div></div>
+        <div class="ayar-toggle" onclick="toggleSec(this)"></div>
+      </div>
+      <div class="ayar-satir">
+        <div class="ayar-ikon" style="background:#F0EBF5;"><svg width="20" height="20" stroke="#8B6BAA" stroke-width="1.6" fill="none"><use href="#ic-bell"></use></svg></div>
+        <div class="ayar-metin"><div class="ayar-baslik">Haftalık Özet</div><div class="ayar-alt">Bu hafta eklenen fotoğraflar</div></div>
+        <div class="ayar-toggle kapali" onclick="toggleSec(this)"></div>
+      </div>
+    </div>
+
+    <div class="ayarlar-bolum">
+      <div class="ayarlar-bolum-baslik">Depolama</div>
+      <div class="ayar-satir">
+        <div class="ayar-ikon" style="background:#F5EDE6;"><svg width="20" height="20" stroke="#A67B71" stroke-width="1.6" fill="none"><use href="#ic-bar-chart"></use></svg></div>
+        <div class="ayar-metin"><div class="ayar-baslik">Kullanılan Alan</div><div class="ayar-alt">1.2 GB · 247 fotoğraf</div></div>
+        <div class="ayar-ok"><svg width="16" height="16" stroke="var(--gul-acik)" stroke-width="2" fill="none"><use href="#ic-chevron-right"></use></svg></div>
+      </div>
+      <div class="ayar-satir" onclick="toast(&#39;Tüm albümler dışa aktarılıyor...&#39;)">
+        <div class="ayar-ikon" style="background:#EAF0EA;"><svg width="20" height="20" stroke="#5A7A5C" stroke-width="1.6" fill="none"><use href="#ic-upload"></use></svg></div>
+        <div class="ayar-metin"><div class="ayar-baslik">Tümünü Dışa Aktar</div><div class="ayar-alt">Albümleri ZIP olarak indir</div></div>
+        <div class="ayar-ok"><svg width="16" height="16" stroke="var(--gul-acik)" stroke-width="2" fill="none"><use href="#ic-chevron-right"></use></svg></div>
+      </div>
+    </div>
+
+    <div class="ayarlar-bolum">
+      <div class="ayarlar-bolum-baslik">Uygulama</div>
+      <div class="ayar-satir">
+        <div class="ayar-ikon" style="background:#F5EDE6;"><svg width="20" height="20" stroke="#D4AF37" stroke-width="1.6" fill="none"><use href="#ic-star"></use></svg></div>
+        <div class="ayar-metin"><div class="ayar-baslik">Uygulamayı Değerlendir</div><div class="ayar-alt">App Store'da puan ver</div></div>
+        <div class="ayar-ok"><svg width="16" height="16" stroke="var(--gul-acik)" stroke-width="2" fill="none"><use href="#ic-chevron-right"></use></svg></div>
+      </div>
+      <div class="ayar-satir">
+        <div class="ayar-ikon" style="background:#E8EEF5;"><svg width="20" height="20" stroke="#6B7AAA" stroke-width="1.6" fill="none"><use href="#ic-info"></use></svg></div>
+        <div class="ayar-metin"><div class="ayar-baslik">Versiyon</div><div class="ayar-alt">Hatıram v1.0.0</div></div>
+      </div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+  <div class="alt-nav">
+    <div class="nav-item" onclick="gec(&#39;anasayfa&#39;)"><svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-album"></use></svg><span>Albümler</span></div>
+    <div class="nav-item" onclick="gec(&#39;takvim-ekran&#39;)"><svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-calendar"></use></svg><span>Takvim</span></div>
+    <div class="nav-ekle" onclick="modalAc(&#39;ekle-modal&#39;)"><svg width="26" height="26" stroke="#D4AF37" stroke-width="2.5" fill="none"><use href="#ic-plus"></use></svg></div>
+    <div class="nav-item" onclick="gec(&#39;paylasim-ekran&#39;)"><svg width="20" height="20" stroke="currentColor" stroke-width="1.6" fill="none"><use href="#ic-send"></use></svg><span>Paylaş</span></div>
+    <div class="nav-item aktif"><svg width="20" height="20" stroke="var(--gece)" stroke-width="1.6" fill="none"><use href="#ic-settings"></use></svg><span>Ayarlar</span></div>
+  </div>
+</div>
+
+<!-- ══ MODAL: FOTOĞRAF EKLE ══ -->
+<div id="ekle-modal" class="overlay" onclick="modalKapat(&#39;ekle-modal&#39;)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-tutamac"></div>
+    <div class="modal-baslik">Fotoğraf Ekle</div>
+    <div class="modal-secenekler">
+      <button class="modal-btn" onclick="modalKapat(&#39;ekle-modal&#39;);modalAc(&#39;gruplama-modal&#39;)">
+        <div class="modal-btn-ikon mi1"><svg width="24" height="24" stroke="#A67B71" stroke-width="1.5" fill="none"><use href="#ic-sparkle"></use></svg></div>
+        <div><div class="modal-btn-metin">Akıllı Gruplama</div><div class="modal-btn-alt">Galerini tara, albümleri otomatik öner</div></div>
+      </button>
+      <button class="modal-btn" onclick="toast(&#39;Galeri açılıyor...&#39;); modalKapat(&#39;ekle-modal&#39;)">
+        <div class="modal-btn-ikon mi2"><svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.5" fill="none"><use href="#ic-image"></use></svg></div>
+        <div><div class="modal-btn-metin">Galeriden Seç</div><div class="modal-btn-alt">Fotoğraf seç, albüme ekle</div></div>
+      </button>
+      <button class="modal-btn" onclick="toast(&#39;Kamera açılıyor...&#39;); modalKapat(&#39;ekle-modal&#39;)">
+        <div class="modal-btn-ikon mi3"><svg width="24" height="24" stroke="#5A7A5C" stroke-width="1.5" fill="none"><use href="#ic-camera"></use></svg></div>
+        <div><div class="modal-btn-metin">Şimdi Çek</div><div class="modal-btn-alt">Çek ve direkt albüme kaydet</div></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: AKILLI GRUPLAMA ══ -->
+<div id="gruplama-modal" class="overlay" onclick="modalKapat(&#39;gruplama-modal&#39;)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-tutamac"></div>
+    <div class="modal-baslik">Akıllı Gruplama</div>
+    <div class="modal-alt-baslik">Galerindeki fotoğraflar tarihlerine göre gruplandı. Onayla veya değiştir.</div>
+    <div class="ai-badge">
+      <svg width="14" height="14" stroke="var(--gece)" stroke-width="1.6" fill="none"><use href="#ic-lock"></use></svg>
+      <div class="ai-badge-metin">Yalnızca çekim tarihi okunur · Fotoğraflar cihazda kalır</div>
+    </div>
+    <div class="gruplama-oneri">
+      <div class="oneri-kart secili" onclick="oneriToggle(this)">
+        <div class="oneri-kart-ikon p1"><svg width="22" height="22" stroke="#A67B71" stroke-width="1.5" fill="none"><use href="#ic-baby"></use></svg></div>
+        <div class="oneri-kart-bilgi"><div class="oneri-kart-ad">İlk 3 Ay</div><div class="oneri-kart-detay">Ocak – Mart 2024</div></div>
+        <div class="oneri-kart-sayi">34 foto</div>
+      </div>
+      <div class="oneri-kart secili" onclick="oneriToggle(this)">
+        <div class="oneri-kart-ikon p4"><svg width="22" height="22" stroke="#5A7A5C" stroke-width="1.5" fill="none"><use href="#ic-mountain"></use></svg></div>
+        <div class="oneri-kart-bilgi"><div class="oneri-kart-ad">Bolu Tatili</div><div class="oneri-kart-detay">Ağustos 2024</div></div>
+        <div class="oneri-kart-sayi">47 foto</div>
+      </div>
+      <div class="oneri-kart" onclick="oneriToggle(this)">
+        <div class="oneri-kart-ikon p2"><svg width="22" height="22" stroke="#6B7AAA" stroke-width="1.5" fill="none"><use href="#ic-cake"></use></svg></div>
+        <div class="oneri-kart-bilgi"><div class="oneri-kart-ad">1. Doğum Günü</div><div class="oneri-kart-detay">Ocak 2025</div></div>
+        <div class="oneri-kart-sayi">28 foto</div>
+      </div>
+      <div class="oneri-kart" onclick="oneriToggle(this)">
+        <div class="oneri-kart-ikon p5"><svg width="22" height="22" stroke="#8B6BAA" stroke-width="1.5" fill="none"><use href="#ic-image"></use></svg></div>
+        <div class="oneri-kart-bilgi"><div class="oneri-kart-ad">Diğer Fotoğraflar</div><div class="oneri-kart-detay">Çeşitli tarihler</div></div>
+        <div class="oneri-kart-sayi">12 foto</div>
+      </div>
+    </div>
+    <div style="padding:16px 16px 0;">
+      <button class="btn-ana" onclick="gruplamaTamamla()">Seçilenleri Albümlere Ekle</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ALBÜM DÜZENLE ══ -->
+<div id="album-duzenle-modal" class="overlay" onclick="modalKapat(&#39;album-duzenle-modal&#39;)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-tutamac"></div>
+    <div class="modal-baslik">Albümü Düzenle</div>
+
+    <!-- Canlı önizleme -->
+    <div class="duzenle-preview">
+      <div class="duzenle-preview-ikon p1" id="duzenle-ikon-onizleme">
+        <svg width="24" height="24" stroke="#A67B71" stroke-width="1.5" fill="none"><use href="#ic-baby"></use></svg>
+      </div>
+      <div class="duzenle-preview-bilgi">
+        <div class="duzenle-preview-ad" id="duzenle-ad-onizleme">İlk 3 Ay</div>
+        <div class="duzenle-preview-meta">47 kıymetli kare</div>
+      </div>
+    </div>
+
+    <div class="duzenle-form" style="margin-top:16px;">
+
+      <!-- İsim -->
+      <div>
+        <div class="form-label">Albüm Adı</div>
+        <input class="form-input" id="duzenle-ad-input" type="text" value="İlk 3 Ay" oninput="document.getElementById(&#39;duzenle-ad-onizleme&#39;).textContent = this.value || &#39;Albüm Adı&#39;">
+      </div>
+
+      <!-- Simge -->
+      <div>
+        <div class="form-label">Simge</div>
+        <div class="ikon-secici">
+          <div class="ikon-sec-btn aktif" onclick="duzenleIkonSec(this, &#39;#A67B71&#39;, &#39;ic-baby&#39;)">
+            <svg width="24" height="24" stroke="#A67B71" stroke-width="1.5" fill="none"><use href="#ic-baby"></use></svg>
+          </div>
+          <div class="ikon-sec-btn" onclick="duzenleIkonSec(this, &#39;#6B7AAA&#39;, &#39;ic-cake&#39;)">
+            <svg width="24" height="24" stroke="#6B7AAA" stroke-width="1.5" fill="none"><use href="#ic-cake"></use></svg>
+          </div>
+          <div class="ikon-sec-btn" onclick="duzenleIkonSec(this, &#39;#5A7A5C&#39;, &#39;ic-mountain&#39;)">
+            <svg width="24" height="24" stroke="#5A7A5C" stroke-width="1.5" fill="none"><use href="#ic-mountain"></use></svg>
+          </div>
+          <div class="ikon-sec-btn" onclick="duzenleIkonSec(this, &#39;#8B6BAA&#39;, &#39;ic-footprint&#39;)">
+            <svg width="24" height="24" stroke="#8B6BAA" stroke-width="1.5" fill="none"><use href="#ic-footprint"></use></svg>
+          </div>
+          <div class="ikon-sec-btn" onclick="duzenleIkonSec(this, &#39;#1A2E44&#39;, &#39;ic-sun&#39;)">
+            <svg width="24" height="24" stroke="#1A2E44" stroke-width="1.5" fill="none"><use href="#ic-sun"></use></svg>
+          </div>
+          <div class="ikon-sec-btn" onclick="duzenleIkonSec(this, &#39;#A67B71&#39;, &#39;ic-bath&#39;)">
+            <svg width="24" height="24" stroke="#A67B71" stroke-width="1.5" fill="none"><use href="#ic-bath"></use></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Renk -->
+      <div>
+        <div class="form-label">Kapak Rengi</div>
+        <div class="renk-secici">
+          <div class="renk-btn aktif" style="background:linear-gradient(135deg,#F5EDE6,#EDD8C8);" onclick="duzenleRenkSec(this, &#39;p1&#39;)"></div>
+          <div class="renk-btn" style="background:linear-gradient(135deg,#E8EEF5,#D0DCE8);" onclick="duzenleRenkSec(this, &#39;p2&#39;)"></div>
+          <div class="renk-btn" style="background:linear-gradient(135deg,#EAF0EA,#D0E0D0);" onclick="duzenleRenkSec(this, &#39;p4&#39;)"></div>
+          <div class="renk-btn" style="background:linear-gradient(135deg,#F0EBF5,#DDD0E8);" onclick="duzenleRenkSec(this, &#39;p5&#39;)"></div>
+          <div class="renk-btn" style="background:linear-gradient(135deg,#F5EDEB,#EBDAD8);" onclick="duzenleRenkSec(this, &#39;p3&#39;)"></div>
+        </div>
+      </div>
+
+      <button class="btn-ana" onclick="duzenleKaydet()">Değişiklikleri Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+function takvimiToggle() {
+  const bos = document.getElementById('takvim-bos');
+  const dolu = document.getElementById('takvim-dolu');
+  const gosterBos = bos.style.display === 'none';
+  bos.style.display = gosterBos ? 'flex' : 'none';
+  dolu.style.display = gosterBos ? 'none' : 'block';
+}
+function menuAc() { document.getElementById('detay-menu').style.display = 'block'; }
+function menuKapat() { document.getElementById('detay-menu').style.display = 'none'; }
+
+function duzenleIkonSec(el, renk, ikonId) {
+  document.querySelectorAll('#album-duzenle-modal .ikon-sec-btn').forEach(b => b.classList.remove('aktif'));
+  el.classList.add('aktif');
+  const onizleme = document.getElementById('duzenle-ikon-onizleme');
+  onizleme.innerHTML = `<svg width="24" height="24" stroke="${renk}" stroke-width="1.5" fill="none"><use href="#${ikonId}"/></svg>`;
+}
+
+function duzenleRenkSec(el, sinif) {
+  document.querySelectorAll('#album-duzenle-modal .renk-btn').forEach(b => b.classList.remove('aktif'));
+  el.classList.add('aktif');
+  const onizleme = document.getElementById('duzenle-ikon-onizleme');
+  onizleme.className = 'duzenle-preview-ikon ' + sinif;
+}
+
+function duzenleKaydet() {
+  const yeniAd = document.getElementById('duzenle-ad-input').value || 'İlk 3 Ay';
+  document.querySelector('#album-detay .detay-baslik').textContent = yeniAd;
+  modalKapat('album-duzenle-modal');
+  toast('✓ Albüm güncellendi');
+}
+
+function bosModToggle() {
+  const bos = document.getElementById('bos-durum-wrap');
+  const dolu = document.getElementById('dolu-durum-wrap');
+  const goster = bos.style.display === 'none';
+  bos.style.display = goster ? 'flex' : 'none';
+  dolu.style.display = goster ? 'none' : 'block';
+}
+function gec(id) {
+  document.querySelectorAll('.ekran').forEach(e => e.classList.remove('aktif'));
+  document.getElementById(id).classList.add('aktif');
+  window.scrollTo(0, 0);
+}
+function modalAc(id) { document.getElementById(id).classList.add('acik'); }
+function modalKapat(id) { document.getElementById(id).classList.remove('acik'); }
+function oneriToggle(el) { el.classList.toggle('secili'); }
+function gruplamaTamamla() {
+  const s = document.querySelectorAll('#gruplama-modal .oneri-kart.secili').length;
+  modalKapat('gruplama-modal');
+  toast(s + ' albüm güncellendi');
+}
+function albumOlustur() { toast('Albüm oluşturuldu'); setTimeout(() => gec('anasayfa'), 800); }
+function ikonSec(el) { document.querySelectorAll('.ikon-sec-btn').forEach(b => b.classList.remove('aktif')); el.classList.add('aktif'); }
+function renkSec(el) { document.querySelectorAll('.renk-btn').forEach(b => b.classList.remove('aktif')); el.classList.add('aktif'); }
+function paylasimAlbumSec(el) { document.querySelectorAll('.paylasim-album-item').forEach(i => i.classList.remove('secili')); el.classList.add('secili'); }
+function fotoSayiSec(el) { document.querySelectorAll('.foto-sayisi-btn').forEach(b => b.classList.remove('aktif')); el.classList.add('aktif'); }
+function onizlemeSec(el) { el.classList.toggle('secili'); }
+function onizlemeToggle() {
+  const hepsi = document.querySelectorAll('.onizleme-foto');
+  const tumSecili = Array.from(hepsi).every(f => f.classList.contains('secili'));
+  hepsi.forEach(f => tumSecili ? f.classList.remove('secili') : f.classList.add('secili'));
+}
+function wpGonder() {
+  const s = document.querySelectorAll('.onizleme-foto.secili').length;
+  if (!s) { toast('En az 1 fotoğraf seç'); return; }
+  toast(s + ' fotoğraf WhatsApp\'a aktarılıyor...');
+}
+function toggleSec(el) { el.classList.toggle('kapali'); }
+function wpPaylasim() { toast('WhatsApp\'ta paylaşılıyor...'); }
+function toast(mesaj) {
+  const t = document.getElementById('toast');
+  t.textContent = mesaj;
+  t.classList.add('goster');
+  setTimeout(() => t.classList.remove('goster'), 2400);
+}
+</script>
+
+
+</body></html>
