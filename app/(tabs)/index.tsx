@@ -1,9 +1,10 @@
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, Dimensions, Modal, TextInput, Alert,
+  Dimensions, Modal, TextInput, Alert,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -135,31 +136,67 @@ function KisiSecici({ seciliKisiId, onChange, kisiler }: {
   onChange: (id: string | undefined) => void;
   kisiler: Kisi[];
 }) {
-  if (kisiler.length === 0) return null;
+  const { kisiEkle } = useAlbum();
+  const [ekleAcik, setEkleAcik] = useState(false);
+  const [yeniAd, setYeniAd] = useState('');
+
+  const hizliEkle = async () => {
+    if (!yeniAd.trim()) return;
+    await kisiEkle(yeniAd.trim());
+    setYeniAd('');
+    setEkleAcik(false);
+  };
+
   return (
     <View style={kisiSecStil.wrap}>
       <Text style={kisiSecStil.baslik}>KİŞİ (İSTEĞE BAĞLI)</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={kisiSecStil.satir}>
-        <TouchableOpacity
-          style={[kisiSecStil.chip, !seciliKisiId && kisiSecStil.chipSecili]}
-          onPress={() => onChange(undefined)}
-        >
-          <Ionicons name="people-outline" size={14} color={!seciliKisiId ? RENKLER.beyaz : RENKLER.komurAcik} />
-          <Text style={[kisiSecStil.chipYazi, !seciliKisiId && kisiSecStil.chipYaziSecili]}>Aile Geneli</Text>
-        </TouchableOpacity>
-        {kisiler.map(k => (
-          <TouchableOpacity
-            key={k.id}
-            style={[kisiSecStil.chip, seciliKisiId === k.id && { backgroundColor: k.ikonRenk, borderColor: k.ikonRenk }]}
-            onPress={() => onChange(seciliKisiId === k.id ? undefined : k.id)}
-          >
-            <View style={[kisiSecStil.dot, { backgroundColor: seciliKisiId === k.id ? RENKLER.beyaz : k.ikonRenk }]} />
-            <Text style={[kisiSecStil.chipYazi, seciliKisiId === k.id && { color: RENKLER.beyaz, fontWeight: '600' }]}>
-              {k.ad}
-            </Text>
+
+      {ekleAcik ? (
+        <View style={kisiSecStil.ekleWrap}>
+          <TextInput
+            style={kisiSecStil.ekleInput}
+            value={yeniAd}
+            onChangeText={setYeniAd}
+            placeholder="Kişi adı..."
+            placeholderTextColor={RENKLER.gulAcik}
+            autoFocus
+            returnKeyType="done"
+            onSubmitEditing={hizliEkle}
+          />
+          <TouchableOpacity style={kisiSecStil.ekleKaydet} onPress={hizliEkle}>
+            <Ionicons name="checkmark" size={18} color={RENKLER.beyaz} />
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+          <TouchableOpacity style={kisiSecStil.ekleIptal} onPress={() => { setEkleAcik(false); setYeniAd(''); }}>
+            <Ionicons name="close" size={18} color={RENKLER.komurAcik} />
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={kisiSecStil.satir}>
+          <TouchableOpacity
+            style={[kisiSecStil.chip, !seciliKisiId && kisiSecStil.chipSecili]}
+            onPress={() => onChange(undefined)}
+          >
+            <Ionicons name="people-outline" size={14} color={!seciliKisiId ? RENKLER.beyaz : RENKLER.komurAcik} />
+            <Text style={[kisiSecStil.chipYazi, !seciliKisiId && kisiSecStil.chipYaziSecili]}>Aile Geneli</Text>
+          </TouchableOpacity>
+          {kisiler.map(k => (
+            <TouchableOpacity
+              key={k.id}
+              style={[kisiSecStil.chip, seciliKisiId === k.id && { backgroundColor: k.ikonRenk, borderColor: k.ikonRenk }]}
+              onPress={() => onChange(seciliKisiId === k.id ? undefined : k.id)}
+            >
+              <View style={[kisiSecStil.dot, { backgroundColor: seciliKisiId === k.id ? RENKLER.beyaz : k.ikonRenk }]} />
+              <Text style={[kisiSecStil.chipYazi, seciliKisiId === k.id && { color: RENKLER.beyaz, fontWeight: '600' }]}>
+                {k.ad}
+              </Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity style={kisiSecStil.ekleChip} onPress={() => setEkleAcik(true)}>
+            <Ionicons name="person-add-outline" size={14} color={RENKLER.gul} />
+            <Text style={kisiSecStil.ekleChipYazi}>Kişi Ekle</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -280,6 +317,7 @@ function DuzenleModal({ album, gorünür, onKapat }: { album: Album | null; gor�
 }
 
 export default function Albumler() {
+  const insets = useSafeAreaInsets();
   const { albumler, albumFotolari, kisiler } = useAlbum();
   const [aktifKategori, setAktifKategori] = useState(0);
   const [seciliKisiId, setSeciliKisiId] = useState<string | null>(null);
@@ -319,7 +357,7 @@ export default function Albumler() {
 
   return (
     <View style={styles.kapsayici}>
-      <SafeAreaView style={styles.headerWrap}>
+      <View style={[styles.headerWrap, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           {aramaAcik ? (
             <View style={styles.aramaWrap}>
@@ -379,7 +417,7 @@ export default function Albumler() {
             </TouchableOpacity>
           ))}
         </ScrollView>
-      </SafeAreaView>
+      </View>
 
       <ScrollView style={styles.icerik} showsVerticalScrollIndicator={false}>
         {filtreliAlbumler.length === 0 && aramaMetni.trim() ? (
@@ -594,4 +632,10 @@ const kisiSecStil = StyleSheet.create({
   chipYazi: { fontSize: 13, fontWeight: '500', color: RENKLER.komurAcik },
   chipYaziSecili: { color: RENKLER.beyaz, fontWeight: '600' },
   dot: { width: 8, height: 8, borderRadius: 4 },
+  ekleChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: RENKLER.beyaz, borderRadius: 20, borderWidth: 1.5, borderStyle: 'dashed', borderColor: 'rgba(166,123,113,0.4)' },
+  ekleChipYazi: { fontSize: 13, fontWeight: '500', color: RENKLER.gul },
+  ekleWrap: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, marginBottom: 8 },
+  ekleInput: { flex: 1, padding: 10, backgroundColor: RENKLER.beyaz, borderRadius: 12, borderWidth: 1.5, borderColor: RENKLER.gulAcik, fontSize: 15, color: RENKLER.gece },
+  ekleKaydet: { width: 36, height: 36, borderRadius: 18, backgroundColor: RENKLER.gece, alignItems: 'center', justifyContent: 'center' },
+  ekleIptal: { width: 36, height: 36, borderRadius: 18, backgroundColor: RENKLER.antik2, alignItems: 'center', justifyContent: 'center' },
 });

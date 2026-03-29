@@ -1,7 +1,8 @@
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, Dimensions, Alert, Modal, Platform, FlatList,
+  Dimensions, Alert, Modal, Platform, FlatList,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -23,8 +24,9 @@ const RENKLER = {
 };
 
 export default function AlbumDetay() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { albumler, albumFotolari, fotoEkle, fotoSil, albumSil } = useAlbum();
+  const { albumler, albumFotolari, fotolarTopluEkle, fotoEkle, fotoSil, albumSil } = useAlbum();
   const [menuAcik, setMenuAcik] = useState(false);
   const [secimModu, setSecimModu] = useState(false);
   const [seciliFotolar, setSeciliFotolar] = useState<Set<string>>(new Set());
@@ -129,9 +131,7 @@ export default function AlbumDetay() {
     });
 
     if (!sonuc.canceled) {
-      for (const asset of sonuc.assets) {
-        await fotoEkle(album.id, asset.uri);
-      }
+      await fotolarTopluEkle(album.id, sonuc.assets.map(a => a.uri));
     }
   };
 
@@ -173,7 +173,7 @@ export default function AlbumDetay() {
   return (
     <View style={styles.kapsayici}>
       {/* Header */}
-      <SafeAreaView style={styles.headerWrap}>
+      <View style={[styles.headerWrap, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.geriBtn} onPress={secimModu ? secimiIptal : () => router.back()}>
             <Ionicons name={secimModu ? 'close' : 'chevron-back'} size={20} color={RENKLER.beyaz} />
@@ -206,7 +206,7 @@ export default function AlbumDetay() {
             <Text style={styles.secimBilgiYazi}>Uzun bas → seç · En fazla {MAX_SECIM} fotoğraf</Text>
           </View>
         )}
-      </SafeAreaView>
+      </View>
 
       {/* Fotoğraf grid */}
       <ScrollView style={styles.icerik} showsVerticalScrollIndicator={false}>
@@ -245,7 +245,7 @@ export default function AlbumDetay() {
 
       {/* Alt bar */}
       {secimModu ? (
-        <View style={styles.secimAltBar}>
+        <View style={[styles.secimAltBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <TouchableOpacity style={styles.iptalBtn} onPress={secimiIptal} activeOpacity={0.88}>
             <Text style={styles.iptalBtnYazi}>İptal</Text>
           </TouchableOpacity>
@@ -262,7 +262,7 @@ export default function AlbumDetay() {
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={styles.altBar}>
+        <View style={[styles.altBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <TouchableOpacity style={styles.ekleBtn} onPress={fotoEkleGaleri} activeOpacity={0.88}>
             <Ionicons name="images-outline" size={18} color={RENKLER.beyaz} />
             <Text style={styles.ekleBtnYazi}>Galeriden Ekle</Text>
@@ -360,12 +360,12 @@ const styles = StyleSheet.create({
   bosFotoYazi: { fontSize: 17, fontWeight: '600', color: RENKLER.gece },
   bosFotoAlt: { fontSize: 13, color: RENKLER.komurAcik, textAlign: 'center', lineHeight: 20 },
 
-  altBar: { flexDirection: 'row', gap: 10, padding: 16, paddingBottom: 32, backgroundColor: RENKLER.beyaz, borderTopWidth: 1, borderTopColor: 'rgba(166,123,113,0.15)' },
+  altBar: { flexDirection: 'row', gap: 10, padding: 16, backgroundColor: RENKLER.beyaz, borderTopWidth: 1, borderTopColor: 'rgba(166,123,113,0.15)' },
   ekleBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, backgroundColor: RENKLER.gece, borderRadius: 14 },
   ekleBtnYazi: { color: RENKLER.beyaz, fontSize: 15, fontWeight: '600' },
   kameraBtn: { width: 50, height: 50, borderRadius: 14, backgroundColor: RENKLER.antik2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(166,123,113,0.2)' },
 
-  secimAltBar: { flexDirection: 'row', gap: 10, padding: 16, paddingBottom: 32, backgroundColor: RENKLER.beyaz, borderTopWidth: 1, borderTopColor: 'rgba(166,123,113,0.15)' },
+  secimAltBar: { flexDirection: 'row', gap: 10, padding: 16, backgroundColor: RENKLER.beyaz, borderTopWidth: 1, borderTopColor: 'rgba(166,123,113,0.15)' },
   iptalBtn: { paddingVertical: 14, paddingHorizontal: 20, borderRadius: 14, backgroundColor: RENKLER.antik2, borderWidth: 1, borderColor: 'rgba(166,123,113,0.2)' },
   iptalBtnYazi: { fontSize: 15, fontWeight: '600', color: RENKLER.komurAcik },
   paylasSecimBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, backgroundColor: '#2A9958', borderRadius: 14 },

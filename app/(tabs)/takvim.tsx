@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAlbum, Foto } from '../../context/AlbumContext';
 
 const RENKLER = {
@@ -29,13 +30,14 @@ function fotoAyGrup(fotolar: Foto[]) {
 }
 
 export default function Takvim() {
+  const insets = useSafeAreaInsets();
   const { fotolar } = useAlbum();
   const gruplar = fotoAyGrup(fotolar);
   const [buyukFotoUri, setBuyukFotoUri] = useState<string | null>(null);
 
   return (
     <View style={styles.kapsayici}>
-      <SafeAreaView style={styles.headerWrap}>
+      <View style={[styles.headerWrap, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <View>
             <Text style={styles.selamlama}>Zaman tüneli</Text>
@@ -46,7 +48,7 @@ export default function Takvim() {
           <View style={styles.gizlilikDot} />
           <Text style={styles.gizlilikYazi}>Anıların yalnızca bu telefonda · Bulut yok</Text>
         </View>
-      </SafeAreaView>
+      </View>
 
       <ScrollView style={styles.icerik} showsVerticalScrollIndicator={false}>
         <View style={{ height: 16 }} />

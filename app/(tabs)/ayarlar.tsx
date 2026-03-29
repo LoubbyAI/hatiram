@@ -1,9 +1,10 @@
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, Switch, Modal, TextInput, KeyboardAvoidingView,
+  Switch, Modal, TextInput, KeyboardAvoidingView,
   Platform, Alert,
 } from 'react-native';
 import { useState, useEffect } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAlbum, Kisi } from '../../context/AlbumContext';
@@ -217,6 +218,7 @@ function KisiSatiri({ kisi, onSil }: { kisi: Kisi; onSil: () => void }) {
 }
 
 export default function Ayarlar() {
+  const insets = useSafeAreaInsets();
   const { albumler, fotolar, kisiler, kisiEkle, kisiSil, tumVerileriSil } = useAlbum();
   const [cocukAdi, setCocukAdiState] = useState('');
   const [dogumTarihi, setDogumTarihiState] = useState('');
@@ -300,7 +302,7 @@ export default function Ayarlar() {
 
   return (
     <View style={styles.kapsayici}>
-      <SafeAreaView style={styles.headerWrap}>
+      <View style={[styles.headerWrap, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.baslik}>Ayarlar</Text>
         </View>
@@ -308,7 +310,7 @@ export default function Ayarlar() {
           <View style={styles.gizlilikDot} />
           <Text style={styles.gizlilikYazi}>Anıların yalnızca bu telefonda · Bulut yok</Text>
         </View>
-      </SafeAreaView>
+      </View>
 
       <ScrollView style={styles.icerik} showsVerticalScrollIndicator={false}>
         <View style={styles.gizlilikBanner}>

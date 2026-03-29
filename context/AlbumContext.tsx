@@ -36,6 +36,7 @@ interface AlbumContextType {
   albumSil: (id: string) => Promise<void>;
   albumGuncelle: (id: string, guncellemeler: Partial<Album>) => Promise<void>;
   fotoEkle: (albumId: string, tempUri: string) => Promise<void>;
+  fotolarTopluEkle: (albumId: string, uriList: string[]) => Promise<void>;
   fotoSil: (id: string) => Promise<void>;
   albumFotolari: (albumId: string) => Foto[];
   kisiEkle: (ad: string) => Promise<void>;
@@ -139,6 +140,37 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
     }]);
   };
 
+  // Toplu ekleme — stale closure sorununu önlemek için AsyncStorage'dan okur
+  const fotolarTopluEkle = async (albumId: string, uriList: string[]) => {
+    const klasor = fotoKlasoru();
+    if (!klasor.exists) klasor.create({ intermediates: true });
+
+    const json = await AsyncStorage.getItem('fotolar');
+    const mevcut: Foto[] = json ? JSON.parse(json) : [];
+    const yeniler: Foto[] = [];
+
+    for (let i = 0; i < uriList.length; i++) {
+      const tempUri = uriList[i];
+      const dosyaAdi = `foto_${Date.now()}_${i}.jpg`;
+      let kaliciUri = tempUri;
+      try {
+        const hedefDosya = new File(klasor, dosyaAdi);
+        new File(tempUri).copy(hedefDosya);
+        kaliciUri = hedefDosya.uri;
+      } catch {
+        kaliciUri = tempUri;
+      }
+      yeniler.push({
+        id: `${Date.now()}_${i}`,
+        albumId,
+        uri: kaliciUri,
+        eklenmeTarihi: Date.now() + i,
+      });
+    }
+
+    await fotoKaydet([...mevcut, ...yeniler]);
+  };
+
   const fotoSil = async (id: string) => {
     const foto = fotolar.find(f => f.id === id);
     if (foto) {
@@ -189,7 +221,7 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
     <AlbumContext.Provider value={{
       albumler, fotolar, kisiler, yukleniyor,
       albumEkle, albumSil, albumGuncelle,
-      fotoEkle, fotoSil, albumFotolari,
+      fotoEkle, fotolarTopluEkle, fotoSil, albumFotolari,
       kisiEkle, kisiSil, tumVerileriSil,
     }}>
       {children}

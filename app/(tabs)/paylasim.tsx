@@ -1,8 +1,9 @@
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, SafeAreaView, Alert, FlatList,
+  TouchableOpacity, Alert, FlatList,
 } from 'react-native';
 import { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as Sharing from 'expo-sharing';
@@ -62,9 +63,10 @@ export default function Paylasim() {
     }
   };
 
+  const insets = useSafeAreaInsets();
   return (
     <View style={styles.kapsayici}>
-      <SafeAreaView style={styles.headerWrap}>
+      <View style={[styles.headerWrap, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <View>
             <Text style={styles.selamlama}>Paylaşım</Text>
@@ -75,7 +77,7 @@ export default function Paylasim() {
           <View style={styles.gizlilikDot} />
           <Text style={styles.gizlilikYazi}>Anıların yalnızca bu telefonda · Bulut yok</Text>
         </View>
-      </SafeAreaView>
+      </View>
 
       {albumler.length === 0 ? (
         <View style={styles.bosWrap}>
