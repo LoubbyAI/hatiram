@@ -48,7 +48,6 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   ekleBtnWrap: {
-    top: -16,
     justifyContent: 'center',
     alignItems: 'center',
   },
