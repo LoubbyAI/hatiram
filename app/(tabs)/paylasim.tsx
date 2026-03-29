@@ -1,12 +1,14 @@
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, Alert, FlatList,
+  TouchableOpacity, Alert, FlatList, Platform,
 } from 'react-native';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as Sharing from 'expo-sharing';
+import * as IntentLauncher from 'expo-intent-launcher';
+import { File } from 'expo-file-system';
 import { useAlbum, Foto } from '../../context/AlbumContext';
 
 const RENKLER = {
@@ -18,6 +20,12 @@ const RENKLER = {
 type IonIconName = React.ComponentProps<typeof Ionicons>['name'];
 const FOTO_SAYILARI = ['Son 5', 'Son 10', 'Son 20', 'Tümü'];
 const FOTO_ADETLER = [5, 10, 20, 9999];
+const MAX_PAYLASIM = 20;
+
+const toContentUri = (uri: string): string => {
+  if (uri.startsWith('content://')) return uri;
+  try { return new File(uri).contentUri; } catch { return uri; }
+};
 
 export default function Paylasim() {
   const { albumler, albumFotolari } = useAlbum();
@@ -37,7 +45,15 @@ export default function Paylasim() {
   const fotoToggle = (id: string) => {
     setSeciliFotolar(prev => {
       const yeni = new Set(prev);
-      if (yeni.has(id)) yeni.delete(id); else yeni.add(id);
+      if (yeni.has(id)) {
+        yeni.delete(id);
+      } else {
+        if (yeni.size >= MAX_PAYLASIM) {
+          Alert.alert('Maksimum seçim', `En fazla ${MAX_PAYLASIM} fotoğraf paylaşabilirsin.`);
+          return prev;
+        }
+        yeni.add(id);
+      }
       return yeni;
     });
   };
@@ -46,7 +62,7 @@ export default function Paylasim() {
     if (seciliFotolar.size === aktifAlbumFotolari.length) {
       setSeciliFotolar(new Set());
     } else {
-      setSeciliFotolar(new Set(aktifAlbumFotolari.map(f => f.id)));
+      setSeciliFotolar(new Set(aktifAlbumFotolari.slice(0, MAX_PAYLASIM).map(f => f.id)));
     }
   };
 
@@ -56,11 +72,34 @@ export default function Paylasim() {
       Alert.alert('Fotoğraf seç', 'Paylaşmak istediğin fotoğrafları seç.');
       return;
     }
+
+    const uriList = paylasılacak.map(f => f.uri);
+
+    if (Platform.OS === 'android') {
+      try {
+        const contentUrilar = uriList.map(toContentUri);
+        if (uriList.length === 1) {
+          await IntentLauncher.startActivityAsync('android.intent.action.SEND', {
+            type: 'image/*',
+            extra: { 'android.intent.extra.STREAM': contentUrilar[0] },
+            flags: 1,
+          });
+        } else {
+          await IntentLauncher.startActivityAsync('android.intent.action.SEND_MULTIPLE', {
+            type: 'image/*',
+            extra: { 'android.intent.extra.STREAM': contentUrilar },
+            flags: 1,
+          });
+        }
+        return;
+      } catch {
+        // fallback below
+      }
+    }
+
     const mevcut = await Sharing.isAvailableAsync();
     if (!mevcut) { Alert.alert('Paylaşım desteklenmiyor'); return; }
-    for (const foto of paylasılacak) {
-      await Sharing.shareAsync(foto.uri);
-    }
+    await Sharing.shareAsync(uriList[0]);
   };
 
   const insets = useSafeAreaInsets();

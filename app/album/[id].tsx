@@ -15,7 +15,12 @@ import { useAlbum } from '../../context/AlbumContext';
 
 const { width } = Dimensions.get('window');
 const FOTO_BOYUTU = (width - 6) / 3;
-const MAX_SECIM = 10;
+const MAX_SECIM = 20;
+
+const toContentUri = (uri: string): string => {
+  if (uri.startsWith('content://')) return uri;
+  try { return new File(uri).contentUri; } catch { return uri; }
+};
 
 const RENKLER = {
   gece: '#1A2E44', gul: '#A67B71', gulAcik: '#C4A09A',
@@ -100,18 +105,28 @@ export default function AlbumDetay() {
     const secilen = fotolar.filter(f => seciliFotolar.has(f.id));
     if (secilen.length === 0) return;
 
+    const uriList = secilen.map(f => f.uri);
+
     try {
-      if (Platform.OS === 'android' && secilen.length > 1) {
-        const contentUrilar = secilen.map(f => new File(f.uri).contentUri);
-        await IntentLauncher.startActivityAsync('android.intent.action.SEND_MULTIPLE', {
-          type: 'image/*',
-          extra: { 'android.intent.extra.STREAM': contentUrilar },
-          flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
-        });
+      if (Platform.OS === 'android') {
+        const contentUrilar = uriList.map(toContentUri);
+        if (uriList.length === 1) {
+          await IntentLauncher.startActivityAsync('android.intent.action.SEND', {
+            type: 'image/*',
+            extra: { 'android.intent.extra.STREAM': contentUrilar[0] },
+            flags: 1,
+          });
+        } else {
+          await IntentLauncher.startActivityAsync('android.intent.action.SEND_MULTIPLE', {
+            type: 'image/*',
+            extra: { 'android.intent.extra.STREAM': contentUrilar },
+            flags: 1,
+          });
+        }
       } else {
         const mevcut = await Sharing.isAvailableAsync();
         if (!mevcut) { Alert.alert('Paylaşım desteklenmiyor'); return; }
-        await Sharing.shareAsync(secilen[0].uri);
+        await Sharing.shareAsync(uriList[0]);
       }
     } catch {
       Alert.alert('Hata', 'Paylaşım sırasında bir sorun oluştu.');
