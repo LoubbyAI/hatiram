@@ -38,6 +38,7 @@ interface AlbumContextType {
   fotoEkle: (albumId: string, tempUri: string) => Promise<void>;
   fotolarTopluEkle: (albumId: string, uriList: string[]) => Promise<void>;
   fotoSil: (id: string) => Promise<void>;
+  fotoTasi: (fotoId: string, hedefAlbumId: string) => Promise<void>;
   albumFotolari: (albumId: string) => Foto[];
   kisiEkle: (ad: string) => Promise<void>;
   kisiSil: (id: string) => Promise<void>;
@@ -111,8 +112,11 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
     const silinecekFotolar = fotolar.filter(f => f.albumId === id);
     for (const foto of silinecekFotolar) {
       try {
-        const dosya = new File(foto.uri);
-        if (dosya.exists) dosya.delete();
+        // Sadece bizim kopyaladığımız dosyaları sil, galeri orijinallerine dokunma
+        if (foto.uri.startsWith('file://')) {
+          const dosya = new File(foto.uri);
+          if (dosya.exists) dosya.delete();
+        }
       } catch {}
     }
     await fotoKaydet(fotolar.filter(f => f.albumId !== id));
@@ -124,16 +128,20 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
   };
 
   const fotoEkle = async (albumId: string, tempUri: string) => {
-    const dosyaAdi = `foto_${Date.now()}.jpg`;
-    const klasor = fotoKlasoru();
     let kaliciUri = tempUri;
-    try {
-      if (!klasor.exists) klasor.create({ intermediates: true });
-      const hedefDosya = new File(klasor, dosyaAdi);
-      new File(tempUri).copy(hedefDosya);
-      kaliciUri = hedefDosya.uri;
-    } catch {
-      kaliciUri = tempUri;
+    // content:// URI = galeri referansı, kopyalamaya gerek yok
+    // file:// URI = geçici dosya (ör. kameradan), filesDir'e kopyala
+    if (tempUri.startsWith('file://')) {
+      const dosyaAdi = `foto_${Date.now()}.jpg`;
+      const klasor = fotoKlasoru();
+      try {
+        if (!klasor.exists) klasor.create({ intermediates: true });
+        const hedefDosya = new File(klasor, dosyaAdi);
+        new File(tempUri).copy(hedefDosya);
+        kaliciUri = hedefDosya.uri;
+      } catch {
+        kaliciUri = tempUri;
+      }
     }
     await fotoKaydet([...fotolar, {
       id: Date.now().toString(), albumId, uri: kaliciUri, eklenmeTarihi: Date.now(),
@@ -142,24 +150,29 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
 
   // Toplu ekleme — stale closure sorununu önlemek için AsyncStorage'dan okur
   const fotolarTopluEkle = async (albumId: string, uriList: string[]) => {
-    const klasor = fotoKlasoru();
-    if (!klasor.exists) klasor.create({ intermediates: true });
-
     const json = await AsyncStorage.getItem('fotolar');
     const mevcut: Foto[] = json ? JSON.parse(json) : [];
     const yeniler: Foto[] = [];
 
     for (let i = 0; i < uriList.length; i++) {
       const tempUri = uriList[i];
-      const dosyaAdi = `foto_${Date.now()}_${i}.jpg`;
       let kaliciUri = tempUri;
-      try {
-        const hedefDosya = new File(klasor, dosyaAdi);
-        new File(tempUri).copy(hedefDosya);
-        kaliciUri = hedefDosya.uri;
-      } catch {
-        kaliciUri = tempUri;
+
+      // content:// URI = galeri referansı, kopyalamaya gerek yok
+      // file:// URI = geçici dosya, filesDir'e kopyala
+      if (tempUri.startsWith('file://')) {
+        const dosyaAdi = `foto_${Date.now()}_${i}.jpg`;
+        const klasor = fotoKlasoru();
+        try {
+          if (!klasor.exists) klasor.create({ intermediates: true });
+          const hedefDosya = new File(klasor, dosyaAdi);
+          new File(tempUri).copy(hedefDosya);
+          kaliciUri = hedefDosya.uri;
+        } catch {
+          kaliciUri = tempUri;
+        }
       }
+
       yeniler.push({
         id: `${Date.now()}_${i}`,
         albumId,
@@ -175,11 +188,18 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
     const foto = fotolar.find(f => f.id === id);
     if (foto) {
       try {
-        const dosya = new File(foto.uri);
-        if (dosya.exists) dosya.delete();
+        // Sadece bizim kopyaladığımız dosyaları sil, galeri orijinallerine dokunma
+        if (foto.uri.startsWith('file://')) {
+          const dosya = new File(foto.uri);
+          if (dosya.exists) dosya.delete();
+        }
       } catch {}
     }
     await fotoKaydet(fotolar.filter(f => f.id !== id));
+  };
+
+  const fotoTasi = async (fotoId: string, hedefAlbumId: string) => {
+    await fotoKaydet(fotolar.map(f => f.id === fotoId ? { ...f, albumId: hedefAlbumId } : f));
   };
 
   const kisiEkle = async (ad: string) => {
@@ -201,8 +221,10 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
   const tumVerileriSil = async () => {
     for (const foto of fotolar) {
       try {
-        const dosya = new File(foto.uri);
-        if (dosya.exists) dosya.delete();
+        if (foto.uri.startsWith('file://')) {
+          const dosya = new File(foto.uri);
+          if (dosya.exists) dosya.delete();
+        }
       } catch {}
     }
     await fotoKaydet([]);
@@ -221,7 +243,7 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
     <AlbumContext.Provider value={{
       albumler, fotolar, kisiler, yukleniyor,
       albumEkle, albumSil, albumGuncelle,
-      fotoEkle, fotolarTopluEkle, fotoSil, albumFotolari,
+      fotoEkle, fotolarTopluEkle, fotoSil, fotoTasi, albumFotolari,
       kisiEkle, kisiSil, tumVerileriSil,
     }}>
       {children}

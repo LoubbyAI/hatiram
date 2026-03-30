@@ -5,8 +5,12 @@ import {
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 import { router } from 'expo-router';
 import { useAlbum, Album } from '../../context/AlbumContext';
+import { usePremium, MAX_UCRETSIZ_FOTO } from '../../context/PremiumContext';
+import PaywallModal from '../../components/PaywallModal';
+import { useLanguage } from '../../i18n';
 
 const RENKLER = {
   gece: '#1A2E44', gul: '#A67B71', gulAcik: '#C4A09A',
@@ -22,6 +26,7 @@ function AlbumSecModal({ gorünür, onSec, onKapat }: {
   onKapat: () => void;
 }) {
   const { albumler } = useAlbum();
+  const { t } = useLanguage();
 
   return (
     <Modal visible={gorünür} transparent animationType="slide" onRequestClose={onKapat}>
@@ -29,10 +34,10 @@ function AlbumSecModal({ gorünür, onSec, onKapat }: {
         <TouchableOpacity style={albumModal.arkaplan} activeOpacity={1} onPress={onKapat} />
         <View style={albumModal.kart}>
           <View style={albumModal.tutamac} />
-          <Text style={albumModal.baslik}>Hangi albüme eklensin?</Text>
+          <Text style={albumModal.baslik}>{t.addSelectAlbumTitle}</Text>
           {albumler.length === 0 ? (
             <View style={albumModal.bosWrap}>
-              <Text style={albumModal.bosYazi}>Önce bir albüm oluştur</Text>
+              <Text style={albumModal.bosYazi}>{t.addNoAlbumsEmpty}</Text>
             </View>
           ) : (
             <ScrollView contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingBottom: 16 }}>
@@ -48,7 +53,7 @@ function AlbumSecModal({ gorünür, onSec, onKapat }: {
             </ScrollView>
           )}
           <TouchableOpacity style={albumModal.iptal} onPress={onKapat}>
-            <Text style={albumModal.iptalYazi}>İptal</Text>
+            <Text style={albumModal.iptalYazi}>{t.cancel}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -57,21 +62,24 @@ function AlbumSecModal({ gorünür, onSec, onKapat }: {
 }
 
 export default function Ekle() {
-  const { fotoEkle, albumler } = useAlbum();
+  const { fotoEkle, fotolarTopluEkle, albumler, albumFotolari } = useAlbum();
+  const { isPremium } = usePremium();
+  const { t } = useLanguage();
   const [albumSecAcik, setAlbumSecAcik] = useState(false);
-  const [seciliUri, setSeciliUri] = useState<string | null>(null);
+  const [seciliUriList, setSeciliUriList] = useState<string[]>([]);
+  const [paywallAcik, setPaywallAcik] = useState(false);
 
   const izinKontrol = async (tip: 'galeri' | 'kamera') => {
     if (tip === 'galeri') {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('İzin Gerekli', 'Fotoğraflarına erişmek için izin ver.');
+        Alert.alert(t.permissionRequired, t.galleryPermissionMsg);
         return false;
       }
     } else {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('İzin Gerekli', 'Kameraya erişmek için izin ver.');
+        Alert.alert(t.permissionRequired, t.cameraPermissionMsg);
         return false;
       }
     }
@@ -80,7 +88,7 @@ export default function Ekle() {
 
   const galeriden = async () => {
     if (!await izinKontrol('galeri')) return;
-    if (albumler.length === 0) { Alert.alert('Önce albüm oluştur', 'Albümler sekmesinden bir albüm oluştur.'); return; }
+    if (albumler.length === 0) { Alert.alert(t.addNoAlbumsAlert, t.addNoAlbumsAlertMsg); return; }
 
     const sonuc = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -89,41 +97,55 @@ export default function Ekle() {
     });
 
     if (!sonuc.canceled && sonuc.assets.length > 0) {
-      setSeciliUri(sonuc.assets[0].uri);
+      setSeciliUriList(sonuc.assets.map(a => a.uri));
       setAlbumSecAcik(true);
     }
   };
 
   const kamerayla = async () => {
     if (!await izinKontrol('kamera')) return;
-    if (albumler.length === 0) { Alert.alert('Önce albüm oluştur', 'Albümler sekmesinden bir albüm oluştur.'); return; }
+    if (albumler.length === 0) { Alert.alert(t.addNoAlbumsAlert, t.addNoAlbumsAlertMsg); return; }
 
     const sonuc = await ImagePicker.launchCameraAsync({
       quality: 0.85,
     });
 
     if (!sonuc.canceled) {
-      setSeciliUri(sonuc.assets[0].uri);
+      const uri = sonuc.assets[0].uri;
+      try {
+        const { status: mlStatus } = await MediaLibrary.requestPermissionsAsync();
+        if (mlStatus === 'granted') await MediaLibrary.saveToLibraryAsync(uri);
+      } catch {}
+      setSeciliUriList([uri]);
       setAlbumSecAcik(true);
     }
   };
 
   const albumSec = async (album: Album) => {
     setAlbumSecAcik(false);
-    if (!seciliUri) return;
+    if (seciliUriList.length === 0) return;
+
+    if (!isPremium && albumFotolari(album.id).length >= MAX_UCRETSIZ_FOTO) {
+      setPaywallAcik(true);
+      return;
+    }
 
     try {
-      await fotoEkle(album.id, seciliUri);
-      Alert.alert('✓ Eklendi', `Fotoğraf "${album.ad}" albümüne eklendi.`);
+      if (seciliUriList.length === 1) {
+        await fotoEkle(album.id, seciliUriList[0]);
+      } else {
+        await fotolarTopluEkle(album.id, seciliUriList);
+      }
+      Alert.alert(t.addSuccessTitle, t.addSuccessMsg(album.ad));
     } catch (e) {
-      Alert.alert('Hata', 'Fotoğraf eklenirken bir sorun oluştu.');
+      Alert.alert(t.error, t.addErrorMsg);
     }
-    setSeciliUri(null);
+    setSeciliUriList([]);
   };
 
   const SECENEKLER = [
-    { ikon: 'images-outline' as IonIconName, ikonBg: '#E8EEF5', ikonRenk: '#6B7AAA', baslik: 'Galeriden Seç', aciklama: 'Fotoğraf seç, albüme ekle', onPress: galeriden },
-    { ikon: 'camera-outline' as IonIconName, ikonBg: '#EAF0EA', ikonRenk: '#5A7A5C', baslik: 'Şimdi Çek', aciklama: 'Çek ve direkt albüme kaydet', onPress: kamerayla },
+    { ikon: 'images-outline' as IonIconName, ikonBg: '#E8EEF5', ikonRenk: '#6B7AAA', baslik: t.addOptionGalleryTitle, aciklama: t.addOptionGalleryDesc, onPress: galeriden },
+    { ikon: 'camera-outline' as IonIconName, ikonBg: '#EAF0EA', ikonRenk: '#5A7A5C', baslik: t.addOptionCameraTitle, aciklama: t.addOptionCameraDesc, onPress: kamerayla },
   ];
 
   return (
@@ -131,8 +153,8 @@ export default function Ekle() {
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => router.back()} />
       <View style={styles.modal}>
         <View style={styles.tutamac} />
-        <Text style={styles.modalBaslik}>Fotoğraf Ekle</Text>
-        <Text style={styles.modalAltBaslik}>Fotoğraflarını nasıl eklemek istiyorsun?</Text>
+        <Text style={styles.modalBaslik}>{t.addTabTitle}</Text>
+        <Text style={styles.modalAltBaslik}>{t.addTabSubtitle}</Text>
 
         <View style={styles.secenekler}>
           {SECENEKLER.map((s) => (
@@ -151,14 +173,19 @@ export default function Ekle() {
 
         <View style={styles.aiRozet}>
           <Ionicons name="lock-closed-outline" size={14} color={RENKLER.gece} />
-          <Text style={styles.aiRozetYazi}>Fotoğraflar yalnızca cihazınızda · Buluta gönderilmez</Text>
+          <Text style={styles.aiRozetYazi}>{t.addPrivacyNote}</Text>
         </View>
       </View>
 
       <AlbumSecModal
         gorünür={albumSecAcik}
         onSec={albumSec}
-        onKapat={() => { setAlbumSecAcik(false); setSeciliUri(null); }}
+        onKapat={() => { setAlbumSecAcik(false); setSeciliUriList([]); }}
+      />
+      <PaywallModal
+        gorunur={paywallAcik}
+        tip="foto"
+        onKapat={() => setPaywallAcik(false)}
       />
     </View>
   );

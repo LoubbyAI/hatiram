@@ -2,7 +2,7 @@ export type Lang = 'tr' | 'en';
 
 const tr = {
   // Common
-  privacy: 'Anıların yalnızca bu telefonda · Bulut yok',
+  privacy: 'Anıların Sadece Bu Cihazda',
   cancel: 'İptal',
   save: 'Kaydet',
   delete: 'Sil',
@@ -93,6 +93,22 @@ const tr = {
   maxSelectionTitle: 'Maksimum seçim',
   maxSelectionMsg: (n: number) => `En fazla ${n} fotoğraf paylaşabilirsin.`,
 
+  // Add Tab (ekle.tsx)
+  addTabTitle: 'Fotoğraf Ekle',
+  addTabSubtitle: 'Fotoğraflarını nasıl eklemek istiyorsun?',
+  addOptionGalleryTitle: 'Galeriden Seç',
+  addOptionGalleryDesc: 'Fotoğraf seç, albüme ekle',
+  addOptionCameraTitle: 'Şimdi Çek',
+  addOptionCameraDesc: 'Çek ve direkt albüme kaydet',
+  addPrivacyNote: 'Fotoğraflar yalnızca cihazınızda · Buluta gönderilmez',
+  addSelectAlbumTitle: 'Hangi albüme eklensin?',
+  addNoAlbumsEmpty: 'Önce bir albüm oluştur',
+  addNoAlbumsAlert: 'Önce albüm oluştur',
+  addNoAlbumsAlertMsg: 'Albümler sekmesinden bir albüm oluştur.',
+  addSuccessTitle: '✓ Eklendi',
+  addSuccessMsg: (name: string) => `Fotoğraf "${name}" albümüne eklendi.`,
+  addErrorMsg: 'Fotoğraf eklenirken bir sorun oluştu.',
+
   // Album Detail
   addFromGallery: 'Galeriden Ekle',
   addFromCamera: 'Fotoğraf Çek',
@@ -107,6 +123,8 @@ const tr = {
   noPhotosAlertMsg: 'Önce albüme fotoğraf ekle.',
   photoMenuTitle: 'Fotoğraf',
   sharePhoto: 'Paylaş',
+  moveToAlbum: 'Albüme Taşı',
+  moveToAlbumTitle: 'Hangi Albüme Taşınsın?',
   startSelectionMode: 'Seçim Modunu Başlat',
   deletePhotoTitle: 'Fotoğrafı Sil',
   deletePhotoMsg: 'Bu fotoğraf silinecek. Emin misin?',
@@ -169,6 +187,29 @@ const tr = {
   deletePersonMsg: 'Kişi silinir ama albümleri korunur, sadece bağlantı kaldırılır.',
   deletePersonAddedName: (name: string) => `"${name}"`,
 
+  // Premium
+  premiumSection: 'PREMIUM',
+  premiumBadge: 'Premium',
+  freeBadge: 'Ücretsiz',
+  premiumActiveTitle: 'Premium Aktif',
+  premiumActiveDesc: 'Sınırsız albüm ve fotoğraf kullanıyorsun.',
+  premiumUpgradeTitle: 'Hatıram Premium',
+  premiumUpgradeDesc: 'Sınırsız albüm ve fotoğraf. Tek seferlik ödeme.',
+  premiumPrice: '$2,49',
+  premiumBuyBtn: 'Premium\'a Geç',
+  premiumRestoreBtn: 'Satın Almayı Geri Yükle',
+  premiumFeature1: 'Sınırsız albüm',
+  premiumFeature2: 'Her albümde sınırsız fotoğraf',
+  premiumFeature3: 'Tek seferlik · Abonelik yok',
+  premiumLoadingBtn: 'İşleniyor...',
+
+  // Paywall
+  paywallAlbumTitle: 'Albüm Limitine Ulaştın',
+  paywallAlbumDesc: (max: number) => `Ücretsiz planda en fazla ${max} albüm oluşturabilirsin.`,
+  paywallPhotoTitle: 'Fotoğraf Limitine Ulaştın',
+  paywallPhotoDesc: (max: number) => `Ücretsiz planda her albümde en fazla ${max} fotoğraf tutabilirsin.`,
+  paywallContinueFree: 'Ücretsiz devam et',
+
   // Modals
   editChildName: 'Çocuk Adı',
   editBirthDate: 'Doğum Tarihi',
@@ -199,7 +240,7 @@ const tr = {
 };
 
 const en: typeof tr = {
-  privacy: 'Your memories only on this device · No cloud',
+  privacy: 'Your Memories, Only On This Device',
   cancel: 'Cancel',
   save: 'Save',
   delete: 'Delete',
@@ -283,6 +324,21 @@ const en: typeof tr = {
   maxSelectionTitle: 'Maximum selection',
   maxSelectionMsg: (n: number) => `You can share up to ${n} photos.`,
 
+  addTabTitle: 'Add Photo',
+  addTabSubtitle: 'How do you want to add a photo?',
+  addOptionGalleryTitle: 'Choose from Gallery',
+  addOptionGalleryDesc: 'Select a photo and add to album',
+  addOptionCameraTitle: 'Take a Photo',
+  addOptionCameraDesc: 'Take and save directly to album',
+  addPrivacyNote: 'Photos stay on your device only · Not sent to cloud',
+  addSelectAlbumTitle: 'Which album?',
+  addNoAlbumsEmpty: 'Create an album first',
+  addNoAlbumsAlert: 'Create an album first',
+  addNoAlbumsAlertMsg: 'Create an album from the Albums tab.',
+  addSuccessTitle: '✓ Added',
+  addSuccessMsg: (name: string) => `Photo added to "${name}".`,
+  addErrorMsg: 'An error occurred while adding the photo.',
+
   addFromGallery: 'Add from Gallery',
   addFromCamera: 'Take Photo',
   albumEmpty: 'No photos yet',
@@ -296,6 +352,8 @@ const en: typeof tr = {
   noPhotosAlertMsg: 'Add photos to this album first.',
   photoMenuTitle: 'Photo',
   sharePhoto: 'Share',
+  moveToAlbum: 'Move to Album',
+  moveToAlbumTitle: 'Move to Which Album?',
   startSelectionMode: 'Start Selection Mode',
   deletePhotoTitle: 'Delete Photo',
   deletePhotoMsg: 'This photo will be deleted. Are you sure?',
@@ -356,6 +414,29 @@ const en: typeof tr = {
   deletePersonTitle: 'Remove person?',
   deletePersonMsg: 'Person is removed but their albums are kept, only the link is removed.',
   deletePersonAddedName: (name: string) => `"${name}"`,
+
+  // Premium
+  premiumSection: 'PREMIUM',
+  premiumBadge: 'Premium',
+  freeBadge: 'Free',
+  premiumActiveTitle: 'Premium Active',
+  premiumActiveDesc: 'You have unlimited albums and photos.',
+  premiumUpgradeTitle: 'Hatıram Premium',
+  premiumUpgradeDesc: 'Unlimited albums and photos. One-time payment.',
+  premiumPrice: '$2.49',
+  premiumBuyBtn: 'Upgrade to Premium',
+  premiumRestoreBtn: 'Restore Purchase',
+  premiumFeature1: 'Unlimited albums',
+  premiumFeature2: 'Unlimited photos per album',
+  premiumFeature3: 'One-time · No subscription',
+  premiumLoadingBtn: 'Processing...',
+
+  // Paywall
+  paywallAlbumTitle: 'Album Limit Reached',
+  paywallAlbumDesc: (max: number) => `Free plan allows up to ${max} albums.`,
+  paywallPhotoTitle: 'Photo Limit Reached',
+  paywallPhotoDesc: (max: number) => `Free plan allows up to ${max} photos per album.`,
+  paywallContinueFree: 'Continue for free',
 
   editChildName: 'Child Name',
   editBirthDate: 'Birth Date',

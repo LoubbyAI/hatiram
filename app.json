@@ -47,7 +47,16 @@
           }
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "react-native-iap",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Fotoğraflarınızı galerinize kaydetmek için izin gerekiyor.",
+          "savePhotosPermission": "Çekilen fotoğrafları galerinize kaydetmek için izin gerekiyor.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

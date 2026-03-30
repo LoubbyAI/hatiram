@@ -7,8 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as Sharing from 'expo-sharing';
-import * as IntentLauncher from 'expo-intent-launcher';
-import { File } from 'expo-file-system';
+import RNShare from 'react-native-share';
+import { File, Paths } from 'expo-file-system';
 import { useAlbum, Foto } from '../../context/AlbumContext';
 import { useLanguage } from '../../i18n';
 
@@ -22,9 +22,19 @@ type IonIconName = React.ComponentProps<typeof Ionicons>['name'];
 const FOTO_ADETLER = [5, 10, 20, 9999];
 const MAX_PAYLASIM = 20;
 
-const toContentUri = (uri: string): string => {
-  if (uri.startsWith('content://')) return uri;
-  try { return new File(uri).contentUri; } catch { return uri; }
+const toShareUri = async (uri: string, idx: number): Promise<string> => {
+  try {
+    const cacheFile = new File(Paths.cache, `rnshare_${Date.now()}_${idx}.jpg`);
+    if (uri.startsWith('file://')) {
+      new File(uri).copy(cacheFile);
+    } else {
+      // content:// URI — fetch ile oku, cache'e yaz
+      const res = await fetch(uri);
+      const buf = await res.arrayBuffer();
+      cacheFile.write(new Uint8Array(buf));
+    }
+    return cacheFile.uri;
+  } catch { return uri; }
 };
 
 export default function Paylasim() {
@@ -78,26 +88,19 @@ export default function Paylasim() {
 
     const uriList = paylasılacak.map(f => f.uri);
 
-    if (Platform.OS === 'android') {
-      try {
-        const contentUrilar = uriList.map(toContentUri);
-        if (uriList.length === 1) {
-          await IntentLauncher.startActivityAsync('android.intent.action.SEND', {
-            type: 'image/*',
-            extra: { 'android.intent.extra.STREAM': contentUrilar[0] },
-            flags: 1,
-          });
+    try {
+      if (Platform.OS === 'android') {
+        const shareUrilar = await Promise.all(uriList.map((u, i) => toShareUri(u, i)));
+        if (shareUrilar.length === 1) {
+          await RNShare.open({ url: shareUrilar[0], type: 'image/*', failOnCancel: false });
         } else {
-          await IntentLauncher.startActivityAsync('android.intent.action.SEND_MULTIPLE', {
-            type: 'image/*',
-            extra: { 'android.intent.extra.STREAM': contentUrilar },
-            flags: 1,
-          });
+          await RNShare.open({ urls: shareUrilar, type: 'image/*', failOnCancel: false });
         }
         return;
-      } catch {
-        // fallback below
       }
+    } catch {
+      Alert.alert(t.sharingNotSupported);
+      return;
     }
 
     const mevcut = await Sharing.isAvailableAsync();

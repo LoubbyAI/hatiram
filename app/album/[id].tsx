@@ -8,19 +8,31 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
-import * as IntentLauncher from 'expo-intent-launcher';
-import { File } from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import RNShare from 'react-native-share';
+import { File, Paths } from 'expo-file-system';
 import { useState } from 'react';
 import { useAlbum } from '../../context/AlbumContext';
+import { usePremium, MAX_UCRETSIZ_FOTO } from '../../context/PremiumContext';
+import PaywallModal from '../../components/PaywallModal';
 import { useLanguage } from '../../i18n';
 
 const { width } = Dimensions.get('window');
 const FOTO_BOYUTU = (width - 6) / 3;
 const MAX_SECIM = 20;
 
-const toContentUri = (uri: string): string => {
-  if (uri.startsWith('content://')) return uri;
-  try { return new File(uri).contentUri; } catch { return uri; }
+const toShareUri = async (uri: string, idx: number): Promise<string> => {
+  try {
+    const cacheFile = new File(Paths.cache, `rnshare_${Date.now()}_${idx}.jpg`);
+    if (uri.startsWith('file://')) {
+      new File(uri).copy(cacheFile);
+    } else {
+      const res = await fetch(uri);
+      const buf = await res.arrayBuffer();
+      cacheFile.write(new Uint8Array(buf));
+    }
+    return cacheFile.uri;
+  } catch { return uri; }
 };
 
 const RENKLER = {
@@ -32,12 +44,16 @@ const RENKLER = {
 export default function AlbumDetay() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { albumler, albumFotolari, fotolarTopluEkle, fotoEkle, fotoSil, albumSil } = useAlbum();
+  const { albumler, albumFotolari, fotolarTopluEkle, fotoEkle, fotoSil, fotoTasi, albumSil } = useAlbum();
   const { t } = useLanguage();
+  const { isPremium } = usePremium();
   const [menuAcik, setMenuAcik] = useState(false);
   const [secimModu, setSecimModu] = useState(false);
   const [seciliFotolar, setSeciliFotolar] = useState<Set<string>>(new Set());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [paywallAcik, setPaywallAcik] = useState(false);
+  const [tasiModalAcik, setTasiModalAcik] = useState(false);
+  const [tasinanFotoId, setTasinanFotoId] = useState<string | null>(null);
 
   const album = albumler.find(a => a.id === id);
   const fotolar = id ? albumFotolari(id) : [];
@@ -66,6 +82,10 @@ export default function AlbumDetay() {
           const mevcut = await Sharing.isAvailableAsync();
           if (mevcut) await Sharing.shareAsync(foto.uri);
         },
+      },
+      {
+        text: t.moveToAlbum,
+        onPress: () => { setTasinanFotoId(foto.id); setTasiModalAcik(true); },
       },
       {
         text: t.startSelectionMode,
@@ -111,19 +131,11 @@ export default function AlbumDetay() {
 
     try {
       if (Platform.OS === 'android') {
-        const contentUrilar = uriList.map(toContentUri);
-        if (uriList.length === 1) {
-          await IntentLauncher.startActivityAsync('android.intent.action.SEND', {
-            type: 'image/*',
-            extra: { 'android.intent.extra.STREAM': contentUrilar[0] },
-            flags: 1,
-          });
+        const shareUrilar = await Promise.all(uriList.map((u, i) => toShareUri(u, i)));
+        if (shareUrilar.length === 1) {
+          await RNShare.open({ url: shareUrilar[0], type: 'image/*', failOnCancel: false });
         } else {
-          await IntentLauncher.startActivityAsync('android.intent.action.SEND_MULTIPLE', {
-            type: 'image/*',
-            extra: { 'android.intent.extra.STREAM': contentUrilar },
-            flags: 1,
-          });
+          await RNShare.open({ urls: shareUrilar, type: 'image/*', failOnCancel: false });
         }
       } else {
         const mevcut = await Sharing.isAvailableAsync();
@@ -137,7 +149,16 @@ export default function AlbumDetay() {
     secimiIptal();
   };
 
+  const limitKontrol = () => {
+    if (!isPremium && fotolar.length >= MAX_UCRETSIZ_FOTO) {
+      setPaywallAcik(true);
+      return false;
+    }
+    return true;
+  };
+
   const fotoEkleGaleri = async () => {
+    if (!limitKontrol()) return;
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') { Alert.alert(t.permissionRequired, t.galleryPermissionMsg); return; }
 
@@ -153,12 +174,19 @@ export default function AlbumDetay() {
   };
 
   const fotoEkleKamera = async () => {
+    if (!limitKontrol()) return;
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') { Alert.alert(t.permissionRequired, t.cameraPermissionMsg); return; }
 
     const sonuc = await ImagePicker.launchCameraAsync({ quality: 0.85 });
     if (!sonuc.canceled) {
-      await fotoEkle(album.id, sonuc.assets[0].uri);
+      const uri = sonuc.assets[0].uri;
+      // Galeriye kaydet
+      try {
+        const { status: mlStatus } = await MediaLibrary.requestPermissionsAsync();
+        if (mlStatus === 'granted') await MediaLibrary.saveToLibraryAsync(uri);
+      } catch {}
+      await fotoEkle(album.id, uri);
     }
   };
 
@@ -340,6 +368,35 @@ export default function AlbumDetay() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <PaywallModal gorunur={paywallAcik} tip="foto" onKapat={() => setPaywallAcik(false)} />
+
+      {/* Albüme Taşı Modal */}
+      <Modal visible={tasiModalAcik} transparent animationType="slide" onRequestClose={() => setTasiModalAcik(false)}>
+        <TouchableOpacity style={styles.menuArkaplan} activeOpacity={1} onPress={() => setTasiModalAcik(false)}>
+          <View style={styles.tasiPanel}>
+            <View style={styles.tasiTutamac} />
+            <Text style={styles.tasiBaslik}>{t.moveToAlbumTitle}</Text>
+            {albumler.filter(a => a.id !== album.id).map(a => (
+              <TouchableOpacity
+                key={a.id}
+                style={styles.tasiSatir}
+                onPress={async () => {
+                  if (tasinanFotoId) await fotoTasi(tasinanFotoId, a.id);
+                  setTasiModalAcik(false);
+                  setTasinanFotoId(null);
+                }}
+              >
+                <View style={[styles.tasiIkon, { backgroundColor: a.renk }]}>
+                  <Ionicons name={a.ikon as React.ComponentProps<typeof Ionicons>['name']} size={18} color={a.ikonRenk} />
+                </View>
+                <Text style={styles.tasiAlbumAd}>{a.ad}</Text>
+                <Ionicons name="chevron-forward" size={16} color={RENKLER.komurAcik} />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -390,9 +447,16 @@ const styles = StyleSheet.create({
   lightboxSayac: { position: 'absolute', bottom: 48, alignSelf: 'center', backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
   lightboxSayacYazi: { color: RENKLER.beyaz, fontSize: 13, fontWeight: '600' },
 
-  menuArkaplan: { flex: 1, backgroundColor: 'rgba(26,46,68,0.4)' },
+  menuArkaplan: { flex: 1, backgroundColor: 'rgba(26,46,68,0.4)', justifyContent: 'flex-end' },
   menuPanel: { position: 'absolute', top: 110, right: 16, backgroundColor: RENKLER.beyaz, borderRadius: 16, overflow: 'hidden', minWidth: 200, shadowColor: RENKLER.gece, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 16, elevation: 8, borderWidth: 1, borderColor: 'rgba(166,123,113,0.15)' },
   menuSatir: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16 },
   menuSatirYazi: { fontSize: 14, fontWeight: '500', color: RENKLER.gece },
   menuAyrac: { height: 1, backgroundColor: 'rgba(166,123,113,0.1)' },
+
+  tasiPanel: { backgroundColor: RENKLER.antik, borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderTopColor: 'rgba(166,123,113,0.2)', paddingBottom: 40 },
+  tasiTutamac: { width: 40, height: 4, borderRadius: 2, backgroundColor: RENKLER.antik2, alignSelf: 'center', margin: 16 },
+  tasiBaslik: { fontSize: 15, fontWeight: '700', color: RENKLER.gece, paddingHorizontal: 20, paddingBottom: 12 },
+  tasiSatir: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 20, paddingVertical: 14, borderTopWidth: 1, borderTopColor: 'rgba(166,123,113,0.1)' },
+  tasiIkon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  tasiAlbumAd: { flex: 1, fontSize: 15, fontWeight: '500', color: RENKLER.komur },
 });
