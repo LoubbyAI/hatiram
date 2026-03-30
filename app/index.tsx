@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useLanguage } from '../i18n';
 
 const { width } = Dimensions.get('window');
 
@@ -79,6 +80,7 @@ function IlustrasYon({ ikon, ikonRenk, rozetler }: {
 
 export default function Onboarding() {
   const [adim, setAdim] = useState(0);
+  const { t } = useLanguage();
   const sonAdim = adim === ONBOARDING.length - 1;
 
   const ileri = () => {
@@ -88,17 +90,18 @@ export default function Onboarding() {
   const geri = () => { if (adim > 0) setAdim(adim - 1); };
 
   const ekran = ONBOARDING[adim];
+  const ekranMetin = t.onboarding[adim];
 
   return (
     <SafeAreaView style={styles.kapsayici}>
       <View style={styles.icerik}>
         <IlustrasYon ikon={ekran.ikon} ikonRenk={ekran.ikonRenk} rozetler={ekran.rozetler} />
         <Text style={styles.baslik}>
-          {ekran.baslik.split('\n').map((satir, i) =>
+          {ekranMetin.baslik.split('\n').map((satir, i) =>
             i === 1 ? <Text key={i} style={styles.italik}>{'\n'}{satir}</Text> : satir
           )}
         </Text>
-        <Text style={styles.aciklama}>{ekran.aciklama}</Text>
+        <Text style={styles.aciklama}>{ekranMetin.aciklama}</Text>
 
         <View style={styles.noktalar}>
           {ONBOARDING.map((_, i) => (
@@ -107,12 +110,12 @@ export default function Onboarding() {
         </View>
 
         <TouchableOpacity style={styles.btnAna} onPress={ileri} activeOpacity={0.85}>
-          <Text style={styles.btnAnaYazi}>{sonAdim ? 'Başla →' : 'Devam →'}</Text>
+          <Text style={styles.btnAnaYazi}>{sonAdim ? t.onboardingStart : t.onboardingContinue}</Text>
         </TouchableOpacity>
 
         {adim > 0 && (
           <TouchableOpacity onPress={geri} style={styles.btnGeri}>
-            <Text style={styles.btnGeriYazi}>← Geri</Text>
+            <Text style={styles.btnGeriYazi}>{t.onboardingBack}</Text>
           </TouchableOpacity>
         )}
       </View>

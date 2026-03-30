@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAlbum, Foto } from '../../context/AlbumContext';
+import { useLanguage } from '../../i18n';
 
 const RENKLER = {
   gece: '#1A2E44', gul: '#A67B71', gulAcik: '#C4A09A',
@@ -11,9 +12,7 @@ const RENKLER = {
   komur: '#2D2D2D', komurAcik: '#6B6B6B', beyaz: '#FFFFFF',
 };
 
-const AYLAR = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-
-function fotoAyGrup(fotolar: Foto[]) {
+function fotoAyGrup(fotolar: Foto[], months: string[]) {
   const gruplar: Record<string, Foto[]> = {};
   for (const foto of fotolar) {
     const tarih = new Date(foto.eklenmeTarihi);
@@ -25,14 +24,15 @@ function fotoAyGrup(fotolar: Foto[]) {
     .sort((a, b) => b[0].localeCompare(a[0]))
     .map(([anahtar, fotolar]) => {
       const [yil, ayIdx] = anahtar.split('-').map(Number);
-      return { baslik: `${AYLAR[ayIdx]} ${yil}`, sayi: fotolar.length, fotolar };
+      return { baslik: `${months[ayIdx]} ${yil}`, sayi: fotolar.length, fotolar };
     });
 }
 
 export default function Takvim() {
   const insets = useSafeAreaInsets();
   const { fotolar } = useAlbum();
-  const gruplar = fotoAyGrup(fotolar);
+  const { t } = useLanguage();
+  const gruplar = fotoAyGrup(fotolar, t.months);
   const [buyukFotoUri, setBuyukFotoUri] = useState<string | null>(null);
 
   return (
@@ -40,13 +40,13 @@ export default function Takvim() {
       <View style={[styles.headerWrap, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.selamlama}>Zaman tüneli</Text>
-            <Text style={styles.baslik}>Takvim</Text>
+            <Text style={styles.selamlama}>{t.calendarSubtitle}</Text>
+            <Text style={styles.baslik}>{t.calendarTitle}</Text>
           </View>
         </View>
         <View style={styles.gizlilikCubugu}>
           <View style={styles.gizlilikDot} />
-          <Text style={styles.gizlilikYazi}>Anıların yalnızca bu telefonda · Bulut yok</Text>
+          <Text style={styles.gizlilikYazi}>{t.privacy}</Text>
         </View>
       </View>
 
@@ -58,15 +58,15 @@ export default function Takvim() {
             <View style={styles.bosCerceve}>
               <Ionicons name="calendar-outline" size={36} color={RENKLER.gulAcik} />
             </View>
-            <Text style={styles.bosBaslik}>Zaman tünelin boş</Text>
-            <Text style={styles.bosAlt}>İlk fotoğrafını yüklediğinde takvimin dolmaya başlar.</Text>
+            <Text style={styles.bosBaslik}>{t.timelineEmpty}</Text>
+            <Text style={styles.bosAlt}>{t.timelineEmptyDesc}</Text>
           </View>
         ) : (
           gruplar.map((grup) => (
             <View key={grup.baslik} style={styles.ayKart}>
               <View style={styles.ayKartHeader}>
                 <Text style={styles.ayKartBaslik}>{grup.baslik}</Text>
-                <Text style={styles.ayKartSayi}>{grup.sayi} fotoğraf</Text>
+                <Text style={styles.ayKartSayi}>{t.photoCount(grup.sayi)}</Text>
               </View>
               <ScrollView
                 horizontal
@@ -91,7 +91,6 @@ export default function Takvim() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Lightbox */}
       <Modal visible={!!buyukFotoUri} transparent animationType="fade" onRequestClose={() => setBuyukFotoUri(null)}>
         <View style={styles.lightboxArkaplan}>
           <TouchableOpacity style={styles.lightboxKapat} onPress={() => setBuyukFotoUri(null)}>

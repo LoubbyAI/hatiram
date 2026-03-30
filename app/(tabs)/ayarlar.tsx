@@ -1,13 +1,14 @@
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   Switch, Modal, TextInput, KeyboardAvoidingView,
-  Platform, Alert,
+  Alert,
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAlbum, Kisi } from '../../context/AlbumContext';
+import { useLanguage, Lang } from '../../i18n';
 
 const RENKLER = {
   gece: '#1A2E44', gul: '#A67B71', gulAcik: '#C4A09A',
@@ -29,6 +30,7 @@ function DuzenlemeModal({ gorünür, baslik, deger, onKaydet, onKapat }: {
   gorünür: boolean; baslik: string; deger: string;
   onKaydet: (v: string) => void; onKapat: () => void;
 }) {
+  const { t } = useLanguage();
   const [gecici, setGecici] = useState(deger);
   useEffect(() => { setGecici(deger); }, [deger, gorünür]);
 
@@ -39,7 +41,7 @@ function DuzenlemeModal({ gorünür, baslik, deger, onKaydet, onKapat }: {
 
   return (
     <Modal visible={gorünür} transparent animationType="slide" onRequestClose={onKapat}>
-      <KeyboardAvoidingView style={styles.modalKaplama} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.modalKaplama} behavior="padding">
         <TouchableOpacity style={styles.modalArkaplan} activeOpacity={1} onPress={onKapat} />
         <View style={styles.modalKart}>
           <View style={styles.modalTutamac} />
@@ -55,10 +57,10 @@ function DuzenlemeModal({ gorünür, baslik, deger, onKaydet, onKapat }: {
             onSubmitEditing={kaydet}
           />
           <TouchableOpacity style={styles.modalKaydetBtn} onPress={kaydet} activeOpacity={0.85}>
-            <Text style={styles.modalKaydetYazi}>Kaydet</Text>
+            <Text style={styles.modalKaydetYazi}>{t.save}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.modalIptalBtn} onPress={onKapat}>
-            <Text style={styles.modalIptalYazi}>İptal</Text>
+            <Text style={styles.modalIptalYazi}>{t.cancel}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -69,6 +71,7 @@ function DuzenlemeModal({ gorünür, baslik, deger, onKaydet, onKapat }: {
 function KisiEkleModal({ gorünür, onKapat, onEkle }: {
   gorünür: boolean; onKapat: () => void; onEkle: (ad: string) => void;
 }) {
+  const { t } = useLanguage();
   const [ad, setAd] = useState('');
 
   const ekle = () => {
@@ -77,27 +80,27 @@ function KisiEkleModal({ gorünür, onKapat, onEkle }: {
 
   return (
     <Modal visible={gorünür} transparent animationType="slide" onRequestClose={onKapat}>
-      <KeyboardAvoidingView style={styles.modalKaplama} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.modalKaplama} behavior="padding">
         <TouchableOpacity style={styles.modalArkaplan} activeOpacity={1} onPress={onKapat} />
         <View style={styles.modalKart}>
           <View style={styles.modalTutamac} />
-          <Text style={styles.modalBaslik}>Kişi Ekle</Text>
-          <Text style={styles.modalAltBaslik}>Çocuk, eş, büyükanne... dilediğin kişiyi ekle</Text>
+          <Text style={styles.modalBaslik}>{t.addPersonModalTitle}</Text>
+          <Text style={styles.modalAltBaslik}>{t.addPersonModalDesc}</Text>
           <TextInput
             style={styles.modalInput}
             value={ad}
             onChangeText={setAd}
             autoFocus
-            placeholder="Ad (örn. Elif, Ahmet...)"
+            placeholder={t.addPersonPlaceholder}
             placeholderTextColor={RENKLER.gulAcik}
             returnKeyType="done"
             onSubmitEditing={ekle}
           />
           <TouchableOpacity style={styles.modalKaydetBtn} onPress={ekle} activeOpacity={0.85}>
-            <Text style={styles.modalKaydetYazi}>Ekle</Text>
+            <Text style={styles.modalKaydetYazi}>{t.add}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.modalIptalBtn} onPress={onKapat}>
-            <Text style={styles.modalIptalYazi}>İptal</Text>
+            <Text style={styles.modalIptalYazi}>{t.cancel}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -105,19 +108,19 @@ function KisiEkleModal({ gorünür, onKapat, onEkle }: {
   );
 }
 
-// 3. adım: "SİL" yazma modalı
 function SilOnayModal({ gorünür, albumSayisi, fotoSayisi, onKapat, onOnayla }: {
   gorünür: boolean; albumSayisi: number; fotoSayisi: number;
   onKapat: () => void; onOnayla: () => void;
 }) {
+  const { t, lang } = useLanguage();
   const [metin, setMetin] = useState('');
-  const aktif = metin.trim().toLocaleUpperCase('tr-TR') === 'SİL';
+  const aktif = metin.trim().toUpperCase() === t.deleteConfirmWord;
 
   useEffect(() => { if (!gorünür) setMetin(''); }, [gorünür]);
 
   return (
     <Modal visible={gorünür} transparent animationType="fade" onRequestClose={onKapat}>
-      <KeyboardAvoidingView style={styles.modalKaplama} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.modalKaplama} behavior="padding">
         <TouchableOpacity style={styles.modalArkaplan} activeOpacity={1} onPress={onKapat} />
         <View style={styles.modalKart}>
           <View style={styles.modalTutamac} />
@@ -125,19 +128,19 @@ function SilOnayModal({ gorünür, albumSayisi, fotoSayisi, onKapat, onOnayla }:
             <View style={styles.silUyariIkon}>
               <Ionicons name="warning-outline" size={28} color={RENKLER.kirmizi} />
             </View>
-            <Text style={styles.silUyariBaslik}>Son Adım</Text>
-            <Text style={styles.silUyariAlt}>
-              {albumSayisi} albüm ve {fotoSayisi} fotoğraf kalıcı olarak silinecek.{'\n'}Bu işlem geri alınamaz.
-            </Text>
+            <Text style={styles.silUyariBaslik}>{t.deleteModalLastStep}</Text>
+            <Text style={styles.silUyariAlt}>{t.deleteModalDesc(albumSayisi, fotoSayisi)}</Text>
           </View>
           <Text style={styles.silYazmaAciklama}>
-            Devam etmek için aşağıya <Text style={{ fontWeight: '700', color: RENKLER.kirmizi }}>SİL</Text> yaz
+            {lang === 'tr' ? 'Devam etmek için aşağıya ' : 'Type '}
+            <Text style={{ fontWeight: '700', color: RENKLER.kirmizi }}>{t.deleteConfirmWord}</Text>
+            {lang === 'tr' ? ' yaz' : ' to confirm'}
           </Text>
           <TextInput
             style={[styles.modalInput, styles.silInput, aktif && styles.silInputAktif]}
             value={metin}
             onChangeText={setMetin}
-            placeholder="SİL"
+            placeholder={t.deleteConfirmPlaceholder}
             placeholderTextColor="rgba(192,57,43,0.3)"
             autoCapitalize="characters"
             returnKeyType="done"
@@ -148,10 +151,10 @@ function SilOnayModal({ gorünür, albumSayisi, fotoSayisi, onKapat, onOnayla }:
             activeOpacity={aktif ? 0.85 : 1}
           >
             <Ionicons name="trash-outline" size={18} color={RENKLER.beyaz} />
-            <Text style={styles.silBtnYazi}>Tüm Verileri Sil</Text>
+            <Text style={styles.silBtnYazi}>{t.deleteConfirmBtn}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.modalIptalBtn} onPress={onKapat}>
-            <Text style={styles.modalIptalYazi}>Vazgeç</Text>
+            <Text style={styles.modalIptalYazi}>{t.dismiss}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -217,9 +220,36 @@ function KisiSatiri({ kisi, onSil }: { kisi: Kisi; onSil: () => void }) {
   );
 }
 
+function DilSecici({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => void }) {
+  const { t } = useLanguage();
+  return (
+    <View style={styles.dilSeciciWrap}>
+      <TouchableOpacity
+        style={[styles.dilBtn, lang === 'tr' && styles.dilBtnAktif]}
+        onPress={() => onChange('tr')}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.dilEmoji}>🇹🇷</Text>
+        <Text style={[styles.dilBtnYazi, lang === 'tr' && styles.dilBtnYaziAktif]}>{t.turkish}</Text>
+        {lang === 'tr' && <Ionicons name="checkmark" size={14} color={RENKLER.gece} />}
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.dilBtn, lang === 'en' && styles.dilBtnAktif]}
+        onPress={() => onChange('en')}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.dilEmoji}>🇬🇧</Text>
+        <Text style={[styles.dilBtnYazi, lang === 'en' && styles.dilBtnYaziAktif]}>{t.english}</Text>
+        {lang === 'en' && <Ionicons name="checkmark" size={14} color={RENKLER.gece} />}
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 export default function Ayarlar() {
   const insets = useSafeAreaInsets();
   const { albumler, fotolar, kisiler, kisiEkle, kisiSil, tumVerileriSil } = useAlbum();
+  const { t, lang, setLang } = useLanguage();
   const [cocukAdi, setCocukAdiState] = useState('');
   const [dogumTarihi, setDogumTarihiState] = useState('');
   const [ogGunBildirim, setOgGunBildirimState] = useState(true);
@@ -259,36 +289,27 @@ export default function Ayarlar() {
 
   const kisiSilOnay = (kisi: Kisi) => {
     Alert.alert(
-      `"${kisi.ad}" Silinsin mi?`,
-      'Kişi silinir ama albümleri korunur, sadece bağlantı kaldırılır.',
+      `${t.deletePersonAddedName(kisi.ad)} ${t.deletePersonTitle}`,
+      t.deletePersonMsg,
       [
-        { text: 'İptal', style: 'cancel' },
-        { text: 'Sil', style: 'destructive', onPress: () => kisiSil(kisi.id) },
+        { text: t.cancel, style: 'cancel' },
+        { text: t.delete, style: 'destructive', onPress: () => kisiSil(kisi.id) },
       ],
     );
   };
 
-  // 3 adımlı silme
   const adim1 = () => {
-    Alert.alert(
-      'Dikkat!',
-      'Tüm albüm ve fotoğrafları silmek istediğinden emin misin? Bu işlem geri alınamaz.',
-      [
-        { text: 'İptal', style: 'cancel' },
-        { text: 'Devam Et', style: 'destructive', onPress: adim2 },
-      ],
-    );
+    Alert.alert(t.deleteStep1Title, t.deleteStep1Msg, [
+      { text: t.cancel, style: 'cancel' },
+      { text: t.deleteStep1Btn, style: 'destructive', onPress: adim2 },
+    ]);
   };
 
   const adim2 = () => {
-    Alert.alert(
-      'Gerçekten emin misin?',
-      `${albumler.length} albüm ve ${fotolar.length} fotoğraf kalıcı olarak silinecek. Geri dönüş yok.`,
-      [
-        { text: 'Hayır, Vazgeç', style: 'cancel' },
-        { text: 'Evet, Devam', style: 'destructive', onPress: () => setSilModalAcik(true) },
-      ],
-    );
+    Alert.alert(t.deleteStep2Title, t.deleteStep2Msg(albumler.length, fotolar.length), [
+      { text: t.deleteStep2No, style: 'cancel' },
+      { text: t.deleteStep2Yes, style: 'destructive', onPress: () => setSilModalAcik(true) },
+    ]);
   };
 
   const adim3Onayla = async () => {
@@ -298,17 +319,15 @@ export default function Ayarlar() {
     setDogumTarihiState('');
   };
 
-  const istatistik = `${albumler.length} albüm · ${fotolar.length} fotoğraf`;
-
   return (
     <View style={styles.kapsayici}>
       <View style={[styles.headerWrap, { paddingTop: insets.top }]}>
         <View style={styles.header}>
-          <Text style={styles.baslik}>Ayarlar</Text>
+          <Text style={styles.baslik}>{t.settingsTitle}</Text>
         </View>
         <View style={styles.gizlilikCubugu}>
           <View style={styles.gizlilikDot} />
-          <Text style={styles.gizlilikYazi}>Anıların yalnızca bu telefonda · Bulut yok</Text>
+          <Text style={styles.gizlilikYazi}>{t.privacy}</Text>
         </View>
       </View>
 
@@ -316,18 +335,18 @@ export default function Ayarlar() {
         <View style={styles.gizlilikBanner}>
           <View style={styles.gizlilikBannerBaslik}>
             <Ionicons name="lock-closed-outline" size={16} color={RENKLER.gece} />
-            <Text style={styles.gizlilikBannerBaslikYazi}>Fotoğrafların yalnızca bu telefonda</Text>
+            <Text style={styles.gizlilikBannerBaslikYazi}>{t.privacyBannerTitle}</Text>
           </View>
-          <Text style={styles.gizlilikBannerAlt}>Hiçbir fotoğraf sunucuya gönderilmez. Bulut depolama yok. Veriler tamamen sende.</Text>
+          <Text style={styles.gizlilikBannerAlt}>{t.privacyBannerDesc}</Text>
         </View>
 
         {/* Kişiler */}
         <View style={styles.bolum}>
-          <Text style={styles.bolumBaslik}>KİŞİLER</Text>
+          <Text style={styles.bolumBaslik}>{t.personsSection}</Text>
           {kisiler.length === 0 ? (
             <View style={styles.kisiBosDurum}>
-              <Text style={styles.kisiBosYazi}>Henüz kimse eklenmedi</Text>
-              <Text style={styles.kisiBosAlt}>Çocuk, eş veya aile üyesi ekleyerek albümleri kişilere atayabilirsin</Text>
+              <Text style={styles.kisiBosYazi}>{t.noPersonsYet}</Text>
+              <Text style={styles.kisiBosAlt}>{t.noPersonsYetDesc}</Text>
             </View>
           ) : (
             <View style={styles.kisiListe}>
@@ -338,70 +357,82 @@ export default function Ayarlar() {
           )}
           <TouchableOpacity style={styles.kisiEkleBtn} onPress={() => setAktifModal('kisiEkle')} activeOpacity={0.8}>
             <Ionicons name="person-add-outline" size={16} color={RENKLER.gul} />
-            <Text style={styles.kisiEkleBtnYazi}>Kişi Ekle</Text>
+            <Text style={styles.kisiEkleBtnYazi}>{t.addPersonBtn}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Genel */}
         <View style={styles.bolum}>
-          <Text style={styles.bolumBaslik}>GENEL</Text>
+          <Text style={styles.bolumBaslik}>{t.generalSection}</Text>
           <AyarSatiri
             ikon="person-outline" ikonBg="#F5EDE6" ikonRenk="#A67B71"
-            baslik="Çocuk Adı" alt={cocukAdi || 'Belirtilmedi'}
+            baslik={t.childName} alt={cocukAdi || t.notSpecified}
             onPress={() => setAktifModal('ad')}
           />
           <AyarSatiri
             ikon="gift-outline" ikonBg="#E8EEF5" ikonRenk="#6B7AAA"
-            baslik="Doğum Tarihi" alt={dogumTarihi || 'Belirtilmedi'}
+            baslik={t.birthDate} alt={dogumTarihi || t.notSpecified}
             onPress={() => setAktifModal('tarih')}
           />
         </View>
 
         {/* Bildirimler */}
         <View style={styles.bolum}>
-          <Text style={styles.bolumBaslik}>BİLDİRİMLER</Text>
+          <Text style={styles.bolumBaslik}>{t.notificationsSection}</Text>
           <ToggleSatiri
             ikon="calendar-outline" ikonBg="#F5EDEB" ikonRenk="#A67B71"
-            baslik='"O Gün" Hatırlatması'
-            alt="Geçen yıl bugün — anılar"
+            baslik={t.onThisDay} alt={t.onThisDayDesc}
             aktif={ogGunBildirim} onDegistir={setOgGunBildirim}
           />
           <ToggleSatiri
             ikon="notifications-outline" ikonBg="#F0EBF5" ikonRenk="#8B6BAA"
-            baslik="Haftalık Özet"
-            alt="Bu hafta eklenen fotoğraflar"
+            baslik={t.weeklyDigest} alt={t.weeklyDigestDesc}
             aktif={haftalikOzet} onDegistir={setHaftalikOzet}
           />
         </View>
 
         {/* Depolama */}
         <View style={styles.bolum}>
-          <Text style={styles.bolumBaslik}>DEPOLAMA</Text>
+          <Text style={styles.bolumBaslik}>{t.storageSection}</Text>
           <View style={styles.ayarSatir}>
             <View style={[styles.ayarIkon, { backgroundColor: '#F5EDE6' }]}>
               <Ionicons name="bar-chart-outline" size={20} color="#A67B71" />
             </View>
             <View style={styles.ayarMetin}>
-              <Text style={styles.ayarBaslik}>İstatistikler</Text>
-              <Text style={styles.ayarAlt}>{istatistik}</Text>
+              <Text style={styles.ayarBaslik}>{t.statistics}</Text>
+              <Text style={styles.ayarAlt}>{t.statsValue(albumler.length, fotolar.length)}</Text>
             </View>
+          </View>
+        </View>
+
+        {/* Dil */}
+        <View style={styles.bolum}>
+          <Text style={styles.bolumBaslik}>{t.languageSection}</Text>
+          <View style={[styles.ayarSatir, { flexDirection: 'column', alignItems: 'stretch', gap: 0 }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+              <View style={[styles.ayarIkon, { backgroundColor: '#EAF2FB' }]}>
+                <Ionicons name="language-outline" size={20} color="#2E6EA6" />
+              </View>
+              <Text style={[styles.ayarBaslik, { flex: 1 }]}>{t.languageLabel}</Text>
+            </View>
+            <DilSecici lang={lang} onChange={setLang} />
           </View>
         </View>
 
         {/* Uygulama */}
         <View style={styles.bolum}>
-          <Text style={styles.bolumBaslik}>UYGULAMA</Text>
+          <Text style={styles.bolumBaslik}>{t.appSection}</Text>
           <AyarSatiri
             ikon="star-outline" ikonBg="#F5EDE6" ikonRenk={RENKLER.altin}
-            baslik="Uygulamayı Değerlendir" alt="Bizi değerlendirin"
-            onPress={() => Alert.alert('Teşekkürler!', 'Play Store\'a yönlendiriliyorsunuz.')}
+            baslik={t.rateApp} alt={t.rateAppDesc}
+            onPress={() => Alert.alert(t.rateAppAlert, t.rateAppAlertMsg)}
           />
           <View style={[styles.ayarSatir, { marginBottom: 0 }]}>
             <View style={[styles.ayarIkon, { backgroundColor: '#E8EEF5' }]}>
               <Ionicons name="information-circle-outline" size={20} color="#6B7AAA" />
             </View>
             <View style={styles.ayarMetin}>
-              <Text style={styles.ayarBaslik}>Versiyon</Text>
+              <Text style={styles.ayarBaslik}>{t.version}</Text>
               <Text style={styles.ayarAlt}>Hatıram v1.0.0</Text>
             </View>
           </View>
@@ -409,10 +440,10 @@ export default function Ayarlar() {
 
         {/* Tehlikeli */}
         <View style={styles.bolum}>
-          <Text style={styles.bolumBaslik}>TEHLİKELİ BÖLGE</Text>
+          <Text style={styles.bolumBaslik}>{t.dangerSection}</Text>
           <AyarSatiri
             ikon="trash-outline" ikonBg="#FEF0EE" ikonRenk={RENKLER.kirmizi}
-            baslik="Tüm Verileri Sil" alt="Albümler ve fotoğraflar kalıcı silinir"
+            baslik={t.deleteAllData} alt={t.deleteAllDataDesc}
             onPress={adim1}
             tehlikeli
           />
@@ -421,8 +452,8 @@ export default function Ayarlar() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      <DuzenlemeModal gorünür={aktifModal === 'ad'} baslik="Çocuk Adı" deger={cocukAdi} onKaydet={setCocukAdi} onKapat={() => setAktifModal(null)} />
-      <DuzenlemeModal gorünür={aktifModal === 'tarih'} baslik="Doğum Tarihi" deger={dogumTarihi} onKaydet={setDogumTarihi} onKapat={() => setAktifModal(null)} />
+      <DuzenlemeModal gorünür={aktifModal === 'ad'} baslik={t.editChildName} deger={cocukAdi} onKaydet={setCocukAdi} onKapat={() => setAktifModal(null)} />
+      <DuzenlemeModal gorünür={aktifModal === 'tarih'} baslik={t.editBirthDate} deger={dogumTarihi} onKaydet={setDogumTarihi} onKapat={() => setAktifModal(null)} />
       <KisiEkleModal gorünür={aktifModal === 'kisiEkle'} onKapat={() => setAktifModal(null)} onEkle={kisiEkle} />
       <SilOnayModal
         gorünür={silModalAcik}
@@ -455,8 +486,6 @@ const styles = StyleSheet.create({
   ayarMetin: { flex: 1 },
   ayarBaslik: { fontSize: 15, fontWeight: '500', color: RENKLER.gece },
   ayarAlt: { fontSize: 12, color: RENKLER.komurAcik, marginTop: 2 },
-
-  // Kişiler
   kisiBosDurum: { padding: 16, backgroundColor: RENKLER.beyaz, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(166,123,113,0.12)', marginBottom: 8, gap: 4 },
   kisiBosYazi: { fontSize: 14, fontWeight: '500', color: RENKLER.komurAcik },
   kisiBosAlt: { fontSize: 12, color: RENKLER.gulAcik, lineHeight: 18 },
@@ -468,8 +497,12 @@ const styles = StyleSheet.create({
   kisiSilBtn: { padding: 4 },
   kisiEkleBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 14, borderRadius: 16, borderWidth: 1.5, borderStyle: 'dashed', borderColor: 'rgba(166,123,113,0.35)', marginBottom: 8 },
   kisiEkleBtnYazi: { fontSize: 14, fontWeight: '500', color: RENKLER.gul },
-
-  // Modal
+  dilSeciciWrap: { flexDirection: 'row', gap: 8 },
+  dilBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 12, borderWidth: 1.5, borderColor: 'rgba(166,123,113,0.2)', backgroundColor: RENKLER.antik },
+  dilBtnAktif: { backgroundColor: RENKLER.gece, borderColor: RENKLER.gece },
+  dilEmoji: { fontSize: 16 },
+  dilBtnYazi: { fontSize: 13, fontWeight: '600', color: RENKLER.komurAcik },
+  dilBtnYaziAktif: { color: RENKLER.beyaz },
   modalKaplama: { flex: 1, justifyContent: 'flex-end' },
   modalArkaplan: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(26,46,68,0.5)' },
   modalKart: { backgroundColor: RENKLER.antik, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingBottom: 40, borderTopWidth: 1, borderTopColor: 'rgba(166,123,113,0.2)' },
@@ -481,8 +514,6 @@ const styles = StyleSheet.create({
   modalKaydetYazi: { color: RENKLER.beyaz, fontSize: 16, fontWeight: '600' },
   modalIptalBtn: { alignItems: 'center', padding: 12 },
   modalIptalYazi: { fontSize: 15, color: RENKLER.komurAcik },
-
-  // Sil onay modal
   silUyariWrap: { alignItems: 'center', paddingHorizontal: 24, paddingBottom: 16, gap: 8 },
   silUyariIkon: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(192,57,43,0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
   silUyariBaslik: { fontSize: 18, fontWeight: '700', color: RENKLER.kirmizi },

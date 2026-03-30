@@ -12,6 +12,7 @@ import * as IntentLauncher from 'expo-intent-launcher';
 import { File } from 'expo-file-system';
 import { useState } from 'react';
 import { useAlbum } from '../../context/AlbumContext';
+import { useLanguage } from '../../i18n';
 
 const { width } = Dimensions.get('window');
 const FOTO_BOYUTU = (width - 6) / 3;
@@ -32,6 +33,7 @@ export default function AlbumDetay() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { albumler, albumFotolari, fotolarTopluEkle, fotoEkle, fotoSil, albumSil } = useAlbum();
+  const { t } = useLanguage();
   const [menuAcik, setMenuAcik] = useState(false);
   const [secimModu, setSecimModu] = useState(false);
   const [seciliFotolar, setSeciliFotolar] = useState<Set<string>>(new Set());
@@ -45,7 +47,7 @@ export default function AlbumDetay() {
       <View style={styles.hata}>
         <Text style={styles.hataYazi}>Albüm bulunamadı</Text>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={{ color: RENKLER.gul }}>Geri dön</Text>
+          <Text style={{ color: RENKLER.gul }}>{t.back}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -57,24 +59,24 @@ export default function AlbumDetay() {
   };
 
   const fotoMenuGoster = (foto: { id: string; uri: string }) => {
-    Alert.alert('Fotoğraf', undefined, [
+    Alert.alert(t.photoMenuTitle, undefined, [
       {
-        text: 'Paylaş',
+        text: t.sharePhoto,
         onPress: async () => {
           const mevcut = await Sharing.isAvailableAsync();
           if (mevcut) await Sharing.shareAsync(foto.uri);
         },
       },
       {
-        text: 'Seçim Modunu Başlat',
+        text: t.startSelectionMode,
         onPress: () => secimBaslat(foto.id),
       },
       {
-        text: 'Sil',
+        text: t.delete,
         style: 'destructive',
         onPress: () => fotoSilOnay(foto.id),
       },
-      { text: 'İptal', style: 'cancel' },
+      { text: t.cancel, style: 'cancel' },
     ]);
   };
 
@@ -87,7 +89,7 @@ export default function AlbumDetay() {
         if (yeni.size === 0) setSecimModu(false);
       } else {
         if (yeni.size >= MAX_SECIM) {
-          Alert.alert('Maksimum seçim', `En fazla ${MAX_SECIM} fotoğraf seçebilirsin.`);
+          Alert.alert(t.maxSelectionTitle, t.maxSelectMsg(MAX_SECIM));
           return prev;
         }
         yeni.add(fotoId);
@@ -129,7 +131,7 @@ export default function AlbumDetay() {
         await Sharing.shareAsync(uriList[0]);
       }
     } catch {
-      Alert.alert('Hata', 'Paylaşım sırasında bir sorun oluştu.');
+      Alert.alert(t.error, t.shareErrorMsg);
     }
 
     secimiIptal();
@@ -137,7 +139,7 @@ export default function AlbumDetay() {
 
   const fotoEkleGaleri = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') { Alert.alert('İzin Gerekli', 'Galeriye erişim izni ver.'); return; }
+    if (status !== 'granted') { Alert.alert(t.permissionRequired, t.galleryPermissionMsg); return; }
 
     const sonuc = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -152,7 +154,7 @@ export default function AlbumDetay() {
 
   const fotoEkleKamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') { Alert.alert('İzin Gerekli', 'Kamera izni ver.'); return; }
+    if (status !== 'granted') { Alert.alert(t.permissionRequired, t.cameraPermissionMsg); return; }
 
     const sonuc = await ImagePicker.launchCameraAsync({ quality: 0.85 });
     if (!sonuc.canceled) {
@@ -161,27 +163,23 @@ export default function AlbumDetay() {
   };
 
   const paylasAlbum = async () => {
-    if (fotolar.length === 0) { Alert.alert('Fotoğraf yok', 'Önce albüme fotoğraf ekle.'); return; }
+    if (fotolar.length === 0) { Alert.alert(t.noPhotosAlert, t.noPhotosAlertMsg); return; }
     const paylasabilir = await Sharing.isAvailableAsync();
-    if (!paylasabilir) { Alert.alert('Paylaşım desteklenmiyor'); return; }
+    if (!paylasabilir) { Alert.alert(t.sharingNotSupported); return; }
     await Sharing.shareAsync(fotolar[0].uri);
   };
 
   const albumSilOnay = () => {
-    Alert.alert(
-      'Albümü Sil',
-      `"${album.ad}" albümü ve tüm fotoğrafları silinecek. Emin misin?`,
-      [
-        { text: 'İptal', style: 'cancel' },
-        { text: 'Sil', style: 'destructive', onPress: async () => { await albumSil(album.id); router.back(); } },
-      ]
-    );
+    Alert.alert(t.deleteAlbumTitle, t.deleteAlbumMsg(album.ad), [
+      { text: t.cancel, style: 'cancel' },
+      { text: t.delete, style: 'destructive', onPress: async () => { await albumSil(album.id); router.back(); } },
+    ]);
   };
 
   const fotoSilOnay = (fotoId: string) => {
-    Alert.alert('Fotoğrafı Sil', 'Bu fotoğraf silinecek. Emin misin?', [
-      { text: 'İptal', style: 'cancel' },
-      { text: 'Sil', style: 'destructive', onPress: () => fotoSil(fotoId) },
+    Alert.alert(t.deletePhotoTitle, t.deletePhotoMsg, [
+      { text: t.cancel, style: 'cancel' },
+      { text: t.delete, style: 'destructive', onPress: () => fotoSil(fotoId) },
     ]);
   };
 
@@ -195,11 +193,11 @@ export default function AlbumDetay() {
           </TouchableOpacity>
           <View style={styles.baslikWrap}>
             {secimModu ? (
-              <Text style={styles.baslik}>{seciliFotolar.size} / {MAX_SECIM} seçildi</Text>
+              <Text style={styles.baslik}>{t.selectionInfo(seciliFotolar.size, MAX_SECIM)}</Text>
             ) : (
               <>
                 <Text style={styles.baslik} numberOfLines={1}>{album.ad}</Text>
-                <Text style={styles.altBaslik}>{fotolar.length} fotoğraf</Text>
+                <Text style={styles.altBaslik}>{t.photoCountLabel(fotolar.length)}</Text>
               </>
             )}
           </View>
@@ -218,7 +216,7 @@ export default function AlbumDetay() {
         {secimModu && (
           <View style={styles.secimBilgi}>
             <Ionicons name="information-circle-outline" size={14} color="rgba(255,255,255,0.5)" />
-            <Text style={styles.secimBilgiYazi}>Uzun bas → seç · En fazla {MAX_SECIM} fotoğraf</Text>
+            <Text style={styles.secimBilgiYazi}>{t.selectionHint(MAX_SECIM)}</Text>
           </View>
         )}
       </View>
@@ -228,8 +226,8 @@ export default function AlbumDetay() {
         {fotolar.length === 0 ? (
           <View style={styles.bosFoto}>
             <Ionicons name="images-outline" size={48} color={RENKLER.gulAcik} />
-            <Text style={styles.bosFotoYazi}>Henüz fotoğraf yok</Text>
-            <Text style={styles.bosFotoAlt}>Aşağıdaki butona bas ve ilk fotoğrafını ekle</Text>
+            <Text style={styles.bosFotoYazi}>{t.albumEmpty}</Text>
+            <Text style={styles.bosFotoAlt}>{t.albumEmptyDesc}</Text>
           </View>
         ) : (
           <View style={styles.grid}>
@@ -262,7 +260,7 @@ export default function AlbumDetay() {
       {secimModu ? (
         <View style={[styles.secimAltBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <TouchableOpacity style={styles.iptalBtn} onPress={secimiIptal} activeOpacity={0.88}>
-            <Text style={styles.iptalBtnYazi}>İptal</Text>
+            <Text style={styles.iptalBtnYazi}>{t.cancel}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.paylasSecimBtn, seciliFotolar.size === 0 && styles.paylasSecimBtnPasif]}
@@ -272,7 +270,7 @@ export default function AlbumDetay() {
           >
             <Ionicons name="share-outline" size={18} color={RENKLER.beyaz} />
             <Text style={styles.paylasSecimBtnYazi}>
-              {seciliFotolar.size > 0 ? `${seciliFotolar.size} Fotoğrafı Paylaş` : 'Paylaş'}
+              {seciliFotolar.size > 0 ? t.shareSelectedBtn(seciliFotolar.size) : t.shareBtn}
             </Text>
           </TouchableOpacity>
         </View>
@@ -280,7 +278,7 @@ export default function AlbumDetay() {
         <View style={[styles.altBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <TouchableOpacity style={styles.ekleBtn} onPress={fotoEkleGaleri} activeOpacity={0.88}>
             <Ionicons name="images-outline" size={18} color={RENKLER.beyaz} />
-            <Text style={styles.ekleBtnYazi}>Galeriden Ekle</Text>
+            <Text style={styles.ekleBtnYazi}>{t.addFromGallery}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.kameraBtn} onPress={fotoEkleKamera} activeOpacity={0.88}>
             <Ionicons name="camera-outline" size={20} color={RENKLER.gece} />
@@ -332,12 +330,12 @@ export default function AlbumDetay() {
           <View style={styles.menuPanel}>
             <TouchableOpacity style={styles.menuSatir} onPress={() => { setMenuAcik(false); paylasAlbum(); }}>
               <Ionicons name="share-outline" size={18} color={RENKLER.gece} />
-              <Text style={styles.menuSatirYazi}>Albümü Paylaş</Text>
+              <Text style={styles.menuSatirYazi}>{t.shareAlbum}</Text>
             </TouchableOpacity>
             <View style={styles.menuAyrac} />
             <TouchableOpacity style={styles.menuSatir} onPress={() => { setMenuAcik(false); albumSilOnay(); }}>
               <Ionicons name="trash-outline" size={18} color="#C0392B" />
-              <Text style={[styles.menuSatirYazi, { color: '#C0392B' }]}>Albümü Sil</Text>
+              <Text style={[styles.menuSatirYazi, { color: '#C0392B' }]}>{t.deleteAlbumBtn}</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

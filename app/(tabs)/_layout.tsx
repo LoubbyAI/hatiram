@@ -1,16 +1,11 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
-
-function EkleButonu({ onPress }: { onPress: () => void }) {
-  return (
-    <TouchableOpacity onPress={onPress} style={styles.ekleBtn}>
-      <Ionicons name="add" size={28} color="#D4AF37" />
-    </TouchableOpacity>
-  );
-}
+import { useLanguage } from '../../i18n';
 
 export default function TabLayout() {
+  const { t } = useLanguage();
+
   return (
     <Tabs
       screenOptions={{
@@ -24,8 +19,8 @@ export default function TabLayout() {
         headerShown: false,
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Albümler', tabBarIcon: ({ color, size }) => <Ionicons name="images-outline" size={size} color={color} /> }} />
-      <Tabs.Screen name="takvim" options={{ title: 'Takvim', tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" size={size} color={color} /> }} />
+      <Tabs.Screen name="index" options={{ title: t.tabAlbums, tabBarIcon: ({ color, size }) => <Ionicons name="images-outline" size={size} color={color} /> }} />
+      <Tabs.Screen name="takvim" options={{ title: t.tabCalendar, tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" size={size} color={color} /> }} />
       <Tabs.Screen
         name="ekle"
         options={{
@@ -40,8 +35,8 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen name="paylasim" options={{ title: 'Paylaş', tabBarIcon: ({ color, size }) => <Ionicons name="paper-plane-outline" size={size} color={color} /> }} />
-      <Tabs.Screen name="ayarlar" options={{ title: 'Ayarlar', tabBarIcon: ({ color, size }) => <Ionicons name="settings-outline" size={size} color={color} /> }} />
+      <Tabs.Screen name="paylasim" options={{ title: t.tabShare, tabBarIcon: ({ color, size }) => <Ionicons name="paper-plane-outline" size={size} color={color} /> }} />
+      <Tabs.Screen name="ayarlar" options={{ title: t.tabSettings, tabBarIcon: ({ color, size }) => <Ionicons name="settings-outline" size={size} color={color} /> }} />
     </Tabs>
   );
 }

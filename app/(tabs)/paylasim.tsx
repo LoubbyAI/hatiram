@@ -10,6 +10,7 @@ import * as Sharing from 'expo-sharing';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { File } from 'expo-file-system';
 import { useAlbum, Foto } from '../../context/AlbumContext';
+import { useLanguage } from '../../i18n';
 
 const RENKLER = {
   gece: '#1A2E44', gul: '#A67B71', gulAcik: '#C4A09A',
@@ -18,7 +19,6 @@ const RENKLER = {
 };
 
 type IonIconName = React.ComponentProps<typeof Ionicons>['name'];
-const FOTO_SAYILARI = ['Son 5', 'Son 10', 'Son 20', 'Tümü'];
 const FOTO_ADETLER = [5, 10, 20, 9999];
 const MAX_PAYLASIM = 20;
 
@@ -29,9 +29,12 @@ const toContentUri = (uri: string): string => {
 
 export default function Paylasim() {
   const { albumler, albumFotolari } = useAlbum();
+  const { t } = useLanguage();
   const [seciliAlbumId, setSeciliAlbumId] = useState<string | null>(albumler[0]?.id ?? null);
   const [seciliFotoSayi, setSeciliFotoSayi] = useState(1);
   const [seciliFotolar, setSeciliFotolar] = useState<Set<string>>(new Set());
+
+  const FOTO_SAYILARI = [t.last5, t.last10, t.last20, t.allPhotos];
 
   const aktifAlbumFotolari: Foto[] = seciliAlbumId
     ? albumFotolari(seciliAlbumId).slice(0, FOTO_ADETLER[seciliFotoSayi])
@@ -49,7 +52,7 @@ export default function Paylasim() {
         yeni.delete(id);
       } else {
         if (yeni.size >= MAX_PAYLASIM) {
-          Alert.alert('Maksimum seçim', `En fazla ${MAX_PAYLASIM} fotoğraf paylaşabilirsin.`);
+          Alert.alert(t.maxSelectionTitle, t.maxSelectionMsg(MAX_PAYLASIM));
           return prev;
         }
         yeni.add(id);
@@ -69,7 +72,7 @@ export default function Paylasim() {
   const paylas = async () => {
     const paylasılacak = aktifAlbumFotolari.filter(f => seciliFotolar.has(f.id));
     if (paylasılacak.length === 0) {
-      Alert.alert('Fotoğraf seç', 'Paylaşmak istediğin fotoğrafları seç.');
+      Alert.alert(t.selectPhotosAlert, t.selectPhotosMsg);
       return;
     }
 
@@ -98,7 +101,7 @@ export default function Paylasim() {
     }
 
     const mevcut = await Sharing.isAvailableAsync();
-    if (!mevcut) { Alert.alert('Paylaşım desteklenmiyor'); return; }
+    if (!mevcut) { Alert.alert(t.sharingNotSupported); return; }
     await Sharing.shareAsync(uriList[0]);
   };
 
@@ -108,27 +111,26 @@ export default function Paylasim() {
       <View style={[styles.headerWrap, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.selamlama}>Paylaşım</Text>
-            <Text style={styles.baslik}>Fotoğraf Paylaş</Text>
+            <Text style={styles.selamlama}>{t.shareSubtitle}</Text>
+            <Text style={styles.baslik}>{t.shareTitle}</Text>
           </View>
         </View>
         <View style={styles.gizlilikCubugu}>
           <View style={styles.gizlilikDot} />
-          <Text style={styles.gizlilikYazi}>Anıların yalnızca bu telefonda · Bulut yok</Text>
+          <Text style={styles.gizlilikYazi}>{t.privacy}</Text>
         </View>
       </View>
 
       {albumler.length === 0 ? (
         <View style={styles.bosWrap}>
           <Ionicons name="images-outline" size={48} color={RENKLER.gulAcik} />
-          <Text style={styles.bosYazi}>Henüz albüm yok</Text>
-          <Text style={styles.bosAlt}>Önce albüm oluştur ve fotoğraf ekle</Text>
+          <Text style={styles.bosYazi}>{t.noAlbumsYet}</Text>
+          <Text style={styles.bosAlt}>{t.noAlbumsYetDesc}</Text>
         </View>
       ) : (
         <View style={styles.icerik}>
-          {/* Albüm seçimi — yatay kaydırmalı */}
           <View style={styles.bolumSatir}>
-            <Text style={styles.bolumBaslik}>Albüm Seç</Text>
+            <Text style={styles.bolumBaslik}>{t.selectAlbum}</Text>
           </View>
           <FlatList
             data={albumler}
@@ -149,20 +151,19 @@ export default function Paylasim() {
                 <Text style={[styles.albumAd, seciliAlbumId === album.id && styles.albumAdSecili]} numberOfLines={1}>
                   {album.ad}
                 </Text>
-                <Text style={styles.albumSayi}>{albumFotolari(album.id).length} kare</Text>
+                <Text style={styles.albumSayi}>{t.photosBadge(albumFotolari(album.id).length)}</Text>
               </TouchableOpacity>
             )}
           />
 
-          {/* Kaç fotoğraf */}
           <View style={[styles.bolumSatir, { paddingTop: 20 }]}>
-            <Text style={styles.bolumBaslik}>Kaç Fotoğraf?</Text>
+            <Text style={styles.bolumBaslik}>{t.howManyPhotos}</Text>
           </View>
           <View style={styles.fotoSayisiWrap}>
             <View style={styles.fotoSayisiSecici}>
               {FOTO_SAYILARI.map((sayi, idx) => (
                 <TouchableOpacity
-                  key={sayi}
+                  key={idx}
                   style={[styles.fotoSayisiBtn, seciliFotoSayi === idx && styles.fotoSayisiBtnAktif]}
                   onPress={() => { setSeciliFotoSayi(idx); setSeciliFotolar(new Set()); }}
                 >
@@ -172,14 +173,13 @@ export default function Paylasim() {
             </View>
           </View>
 
-          {/* Önizleme */}
           {aktifAlbumFotolari.length > 0 ? (
             <>
               <View style={[styles.bolumSatir, { paddingTop: 20 }]}>
-                <Text style={styles.bolumBaslik}>Önizleme</Text>
+                <Text style={styles.bolumBaslik}>{t.preview}</Text>
                 <TouchableOpacity onPress={tumuSec}>
                   <Text style={styles.bolumLink}>
-                    {seciliFotolar.size === aktifAlbumFotolari.length ? 'Seçimi kaldır' : 'Tümünü seç'}
+                    {seciliFotolar.size === aktifAlbumFotolari.length ? t.deselectAll : t.selectAll}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -204,20 +204,19 @@ export default function Paylasim() {
           ) : (
             <View style={styles.bosOnizleme}>
               <Ionicons name="images-outline" size={32} color={RENKLER.gulAcik} />
-              <Text style={styles.bosOnizlemeYazi}>Bu albümde henüz fotoğraf yok</Text>
+              <Text style={styles.bosOnizlemeYazi}>{t.noPhotosInAlbum}</Text>
             </View>
           )}
 
-          {/* Paylaş butonu — sabit altta */}
           <View style={styles.altBar}>
             <View style={styles.infoNot}>
               <Ionicons name="lock-closed-outline" size={14} color={RENKLER.komurAcik} style={{ flexShrink: 0 }} />
-              <Text style={styles.infoNotYazi}>Fotoğraflar doğrudan paylaşılır. Sunucuya gitmez.</Text>
+              <Text style={styles.infoNotYazi}>{t.sharePrivacyNote}</Text>
             </View>
             <TouchableOpacity style={styles.paylasBtn} onPress={paylas} activeOpacity={0.88}>
               <Ionicons name="share-outline" size={22} color={RENKLER.beyaz} />
               <Text style={styles.paylasBtnYazi}>
-                {seciliFotolar.size > 0 ? `${seciliFotolar.size} Fotoğrafı Paylaş` : 'Paylaş'}
+                {seciliFotolar.size > 0 ? t.shareCount(seciliFotolar.size) : t.shareBtn}
               </Text>
             </TouchableOpacity>
           </View>
