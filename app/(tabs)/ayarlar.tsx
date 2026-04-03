@@ -8,6 +8,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAlbum, Kisi } from '../../context/AlbumContext';
+import { usePremium } from '../../context/PremiumContext';
+import PaywallModal from '../../components/PaywallModal';
 import { useLanguage, Lang } from '../../i18n';
 
 const RENKLER = {
@@ -250,6 +252,8 @@ export default function Ayarlar() {
   const insets = useSafeAreaInsets();
   const { albumler, fotolar, kisiler, kisiEkle, kisiSil, tumVerileriSil } = useAlbum();
   const { t, lang, setLang } = useLanguage();
+  const { isPremium, yenile: premiumYenile } = usePremium();
+  const [paywallAcik, setPaywallAcik] = useState(false);
   const [cocukAdi, setCocukAdiState] = useState('');
   const [dogumTarihi, setDogumTarihiState] = useState('');
   const [ogGunBildirim, setOgGunBildirimState] = useState(true);
@@ -405,6 +409,51 @@ export default function Ayarlar() {
           </View>
         </View>
 
+        {/* Premium */}
+        <View style={styles.bolum}>
+          <Text style={styles.bolumBaslik}>{t.premiumSection}</Text>
+          {isPremium ? (
+            <View style={[styles.ayarSatir, { gap: 14 }]}>
+              <View style={[styles.ayarIkon, { backgroundColor: 'rgba(212,175,55,0.12)' }]}>
+                <Ionicons name="star" size={20} color={RENKLER.altin} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.ayarAd}>{t.premiumActiveTitle}</Text>
+                <Text style={styles.ayarAlt}>{t.premiumActiveDesc}</Text>
+              </View>
+              <View style={styles.premiumRozet}>
+                <Text style={styles.premiumRozetYazi}>{t.premiumBadge}</Text>
+              </View>
+            </View>
+          ) : (
+            <>
+              <TouchableOpacity style={styles.premiumKart} onPress={() => setPaywallAcik(true)} activeOpacity={0.85}>
+                <View style={styles.premiumKartSol}>
+                  <View style={[styles.ayarIkon, { backgroundColor: 'rgba(212,175,55,0.12)' }]}>
+                    <Ionicons name="star-outline" size={20} color={RENKLER.altin} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.ayarAd}>{t.premiumUpgradeTitle}</Text>
+                    <Text style={styles.ayarAlt}>{t.premiumUpgradeDesc}</Text>
+                  </View>
+                </View>
+                <View style={styles.premiumFiyatBtn}>
+                  <Text style={styles.premiumFiyatBtnYazi}>{t.premiumPrice}</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.ayarSatir} onPress={premiumYenile} activeOpacity={0.7}>
+                <View style={[styles.ayarIkon, { backgroundColor: RENKLER.antik2 }]}>
+                  <Ionicons name="refresh-outline" size={20} color={RENKLER.komurAcik} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.ayarAd}>{t.premiumRestoreBtn}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={RENKLER.komurAcik} />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+
         {/* Dil */}
         <View style={styles.bolum}>
           <Text style={styles.bolumBaslik}>{t.languageSection}</Text>
@@ -462,6 +511,7 @@ export default function Ayarlar() {
         onKapat={() => setSilModalAcik(false)}
         onOnayla={adim3Onayla}
       />
+      <PaywallModal gorunur={paywallAcik} tip="album" onKapat={() => setPaywallAcik(false)} />
     </View>
   );
 }
@@ -485,7 +535,14 @@ const styles = StyleSheet.create({
   ayarIkon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   ayarMetin: { flex: 1 },
   ayarBaslik: { fontSize: 15, fontWeight: '500', color: RENKLER.gece },
+  ayarAd: { fontSize: 15, fontWeight: '600', color: RENKLER.gece },
   ayarAlt: { fontSize: 12, color: RENKLER.komurAcik, marginTop: 2 },
+  premiumRozet: { backgroundColor: 'rgba(212,175,55,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(212,175,55,0.4)' },
+  premiumRozetYazi: { fontSize: 11, fontWeight: '700', color: '#B8960C' },
+  premiumKart: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, backgroundColor: RENKLER.beyaz, borderRadius: 16, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(212,175,55,0.3)', shadowColor: RENKLER.gece, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 6, elevation: 2 },
+  premiumKartSol: { flexDirection: 'row', alignItems: 'center', gap: 14, flex: 1 },
+  premiumFiyatBtn: { backgroundColor: RENKLER.gece, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 12 },
+  premiumFiyatBtnYazi: { fontSize: 14, fontWeight: '700', color: RENKLER.altin },
   kisiBosDurum: { padding: 16, backgroundColor: RENKLER.beyaz, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(166,123,113,0.12)', marginBottom: 8, gap: 4 },
   kisiBosYazi: { fontSize: 14, fontWeight: '500', color: RENKLER.komurAcik },
   kisiBosAlt: { fontSize: 12, color: RENKLER.gulAcik, lineHeight: 18 },

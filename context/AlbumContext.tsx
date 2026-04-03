@@ -18,6 +18,7 @@ export interface Album {
   ikonRenk: string;
   olusturmaTarihi: number;
   kisiId?: string;
+  kapakFotoId?: string;
 }
 
 export interface Foto {
@@ -39,6 +40,7 @@ interface AlbumContextType {
   fotolarTopluEkle: (albumId: string, uriList: string[]) => Promise<void>;
   fotoSil: (id: string) => Promise<void>;
   fotoTasi: (fotoId: string, hedefAlbumId: string) => Promise<void>;
+  kapakAyarla: (albumId: string, fotoId: string) => Promise<void>;
   albumFotolari: (albumId: string) => Foto[];
   kisiEkle: (ad: string) => Promise<void>;
   kisiSil: (id: string) => Promise<void>;
@@ -202,6 +204,10 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
     await fotoKaydet(fotolar.map(f => f.id === fotoId ? { ...f, albumId: hedefAlbumId } : f));
   };
 
+  const kapakAyarla = async (albumId: string, fotoId: string) => {
+    await albumKaydet(albumler.map(a => a.id === albumId ? { ...a, kapakFotoId: fotoId } : a));
+  };
+
   const kisiEkle = async (ad: string) => {
     const renkIdx = kisiler.length % KISI_RENKLERI.length;
     const yeni: Kisi = {
@@ -233,6 +239,7 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.multiRemove([
       'ayar_cocuk_adi', 'ayar_dogum_tarihi',
       'ayar_og_gun_bildirim', 'ayar_haftalik_ozet',
+      'onboarding_goruldu',
     ]);
   };
 
@@ -243,7 +250,7 @@ export function AlbumProvider({ children }: { children: React.ReactNode }) {
     <AlbumContext.Provider value={{
       albumler, fotolar, kisiler, yukleniyor,
       albumEkle, albumSil, albumGuncelle,
-      fotoEkle, fotolarTopluEkle, fotoSil, fotoTasi, albumFotolari,
+      fotoEkle, fotolarTopluEkle, fotoSil, fotoTasi, kapakAyarla, albumFotolari,
       kisiEkle, kisiSil, tumVerileriSil,
     }}>
       {children}

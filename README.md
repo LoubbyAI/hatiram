@@ -1,50 +1,48 @@
-# Welcome to your Expo app 👋
+# Hatıram — Aile Fotoğraf Albümü
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Türk aileler için tasarlanmış, **bulut yok, abonelik yok** dijital fotoğraf albümü uygulaması. Tüm veriler sadece cihazda saklanır.
 
-## Get started
+---
 
-1. Install dependencies
+## Özellikler
 
-   ```bash
-   npm install
-   ```
+- Fotoğrafları albümlere ayır, düzenle
+- Galeriden veya kamerayla fotoğraf ekle (kamera fotoğrafları otomatik galeriye de kaydedilir)
+- Albümler arası fotoğraf taşıma
+- Çoklu seçim: seç, paylaş, sil, taşı
+- WhatsApp dahil tüm uygulamalara paylaşım
+- Albüm kapak fotoğrafı belirleme
+- Freemium: ücretsiz 10 foto/albüm, premium sınırsız (149 TL/yıl)
+- Türkçe ve İngilizce dil desteği
 
-2. Start the app
+## Teknik
 
-   ```bash
-   npx expo start
-   ```
+- **Platform:** Android (Google Play) · iOS
+- **Stack:** Expo SDK 54 · React Native 0.81.5 · TypeScript
+- **Depolama:** Galeri fotoğrafları `content://` URI ile referans alınır, kopya oluşturulmaz
+- **Paylaşım:** `react-native-share` + cache kopyası (WhatsApp FileProvider uyumluluğu)
+- **Package:** `com.omer.hatiram`
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Geliştirme
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Build
 
-## Learn more
+```bash
+# Preview (test)
+eas build --platform android --profile preview
 
-To learn more about developing your project with Expo, look at the following resources:
+# Production
+eas build --platform android --profile production
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Mimari Notlar
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Galeri fotoğrafları: `content://` URI saklanır, orijinale dokunulmaz
+- Kamera fotoğrafları: `filesDir`'e kopyalanır + `expo-media-library` ile galeriye kaydedilir
+- Paylaşım öncesi dosyalar `Paths.cache`'e kopyalanır (react-native-share FileProvider sadece cache/ expose ediyor)
+- EAS Project ID: `571dc730-d043-475e-a490-1d16db655bc3`

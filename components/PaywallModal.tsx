@@ -74,7 +74,7 @@ export default function PaywallModal({ gorunur, tip, onKapat }: Props) {
           {/* Fiyat ve satın alma */}
           <View style={styles.fiyatWrap}>
             <Text style={styles.fiyat}>{t.premiumPrice}</Text>
-            <Text style={styles.fiyatAlt}>tek seferlik</Text>
+            <Text style={styles.fiyatAlt}>{t.premiumOneTime}</Text>
           </View>
 
           <TouchableOpacity

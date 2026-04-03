@@ -2,7 +2,7 @@ import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, Alert, FlatList, Platform,
 } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -43,6 +43,12 @@ export default function Paylasim() {
   const [seciliAlbumId, setSeciliAlbumId] = useState<string | null>(albumler[0]?.id ?? null);
   const [seciliFotoSayi, setSeciliFotoSayi] = useState(1);
   const [seciliFotolar, setSeciliFotolar] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!seciliAlbumId && albumler.length > 0) {
+      setSeciliAlbumId(albumler[0].id);
+    }
+  }, [albumler]);
 
   const FOTO_SAYILARI = [t.last5, t.last10, t.last20, t.allPhotos];
 

@@ -1,5 +1,5 @@
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Pressable,
   Dimensions, Alert, Modal, Platform, FlatList,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,7 +18,7 @@ import PaywallModal from '../../components/PaywallModal';
 import { useLanguage } from '../../i18n';
 
 const { width } = Dimensions.get('window');
-const FOTO_BOYUTU = (width - 6) / 3;
+const FOTO_BOYUTU = (width - 12) / 3;
 const MAX_SECIM = 20;
 
 const toShareUri = async (uri: string, idx: number): Promise<string> => {
@@ -44,7 +44,7 @@ const RENKLER = {
 export default function AlbumDetay() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { albumler, albumFotolari, fotolarTopluEkle, fotoEkle, fotoSil, fotoTasi, albumSil } = useAlbum();
+  const { albumler, albumFotolari, fotolarTopluEkle, fotoEkle, fotoSil, fotoTasi, kapakAyarla, albumSil } = useAlbum();
   const { t } = useLanguage();
   const { isPremium } = usePremium();
   const [menuAcik, setMenuAcik] = useState(false);
@@ -53,6 +53,8 @@ export default function AlbumDetay() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [paywallAcik, setPaywallAcik] = useState(false);
   const [tasiModalAcik, setTasiModalAcik] = useState(false);
+  const [tasiModundaMi, setTasiModundaMi] = useState(false);
+  const [fotoMenuFoto, setFotoMenuFoto] = useState<string | null>(null);
   const [tasinanFotoId, setTasinanFotoId] = useState<string | null>(null);
 
   const album = albumler.find(a => a.id === id);
@@ -61,7 +63,7 @@ export default function AlbumDetay() {
   if (!album) {
     return (
       <View style={styles.hata}>
-        <Text style={styles.hataYazi}>Albüm bulunamadı</Text>
+        <Text style={styles.hataYazi}>{t.albumNotFound}</Text>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={{ color: RENKLER.gul }}>{t.back}</Text>
         </TouchableOpacity>
@@ -74,30 +76,31 @@ export default function AlbumDetay() {
     setSeciliFotolar(new Set([fotoId]));
   };
 
-  const fotoMenuGoster = (foto: { id: string; uri: string }) => {
-    Alert.alert(t.photoMenuTitle, undefined, [
-      {
-        text: t.sharePhoto,
-        onPress: async () => {
-          const mevcut = await Sharing.isAvailableAsync();
-          if (mevcut) await Sharing.shareAsync(foto.uri);
-        },
-      },
-      {
-        text: t.moveToAlbum,
-        onPress: () => { setTasinanFotoId(foto.id); setTasiModalAcik(true); },
-      },
-      {
-        text: t.startSelectionMode,
-        onPress: () => secimBaslat(foto.id),
-      },
-      {
-        text: t.delete,
-        style: 'destructive',
-        onPress: () => fotoSilOnay(foto.id),
-      },
+  const seciliPaylasSingle = async (uri: string) => {
+    const mevcut = await Sharing.isAvailableAsync();
+    if (mevcut) await Sharing.shareAsync(uri);
+  };
+
+  const seciliSil = () => {
+    const sayi = seciliFotolar.size;
+    Alert.alert(t.deletePhotoTitle, sayi === 1 ? t.deletePhotoMsg : `${sayi} fotoğraf silinecek. Emin misin?`, [
       { text: t.cancel, style: 'cancel' },
+      { text: t.delete, style: 'destructive', onPress: async () => {
+        for (const fotoId of seciliFotolar) fotoSil(fotoId);
+        secimiIptal();
+      }},
     ]);
+  };
+
+  const seciliKapakYap = () => {
+    if (seciliFotolar.size !== 1) return;
+    kapakAyarla(album.id, Array.from(seciliFotolar)[0]);
+    secimiIptal();
+  };
+
+  const seciliTasiAc = () => {
+    setTasiModundaMi(true);
+    setTasiModalAcik(true);
   };
 
   const fotoToggle = (fotoId: string) => {
@@ -139,7 +142,7 @@ export default function AlbumDetay() {
         }
       } else {
         const mevcut = await Sharing.isAvailableAsync();
-        if (!mevcut) { Alert.alert('Paylaşım desteklenmiyor'); return; }
+        if (!mevcut) { Alert.alert(t.sharingNotSupported); return; }
         await Sharing.shareAsync(uriList[0]);
       }
     } catch {
@@ -258,7 +261,7 @@ export default function AlbumDetay() {
             <Text style={styles.bosFotoAlt}>{t.albumEmptyDesc}</Text>
           </View>
         ) : (
-          <View style={styles.grid}>
+          <Pressable style={styles.grid} onPress={() => secimModu && secimiIptal()}>
             {fotolar.map((foto) => {
               const secili = seciliFotolar.has(foto.id);
               return (
@@ -266,7 +269,7 @@ export default function AlbumDetay() {
                   key={foto.id}
                   style={[styles.fotoDurum, secili && styles.fotoDurumSecili]}
                   onPress={() => secimModu ? fotoToggle(foto.id) : setLightboxIndex(fotolar.indexOf(foto))}
-                  onLongPress={() => secimModu ? fotoSilOnay(foto.id) : fotoMenuGoster(foto)}
+                  onLongPress={() => secimModu ? undefined : setFotoMenuFoto(foto.id)}
                   activeOpacity={0.85}
                 >
                   <Image source={{ uri: foto.uri }} style={styles.fotoImg} contentFit="cover" />
@@ -279,7 +282,7 @@ export default function AlbumDetay() {
                 </TouchableOpacity>
               );
             })}
-          </View>
+          </Pressable>
         )}
         <View style={{ height: 100 }} />
       </ScrollView>
@@ -290,17 +293,24 @@ export default function AlbumDetay() {
           <TouchableOpacity style={styles.iptalBtn} onPress={secimiIptal} activeOpacity={0.88}>
             <Text style={styles.iptalBtnYazi}>{t.cancel}</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.paylasSecimBtn, seciliFotolar.size === 0 && styles.paylasSecimBtnPasif]}
-            onPress={seciliPaylas}
-            activeOpacity={0.88}
-            disabled={seciliFotolar.size === 0}
-          >
-            <Ionicons name="share-outline" size={18} color={RENKLER.beyaz} />
-            <Text style={styles.paylasSecimBtnYazi}>
-              {seciliFotolar.size > 0 ? t.shareSelectedBtn(seciliFotolar.size) : t.shareBtn}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.secimAksiyonlar}>
+            <TouchableOpacity style={styles.secimAksiyon} onPress={seciliPaylas} disabled={seciliFotolar.size === 0} activeOpacity={0.8}>
+              <Ionicons name="share-outline" size={22} color={seciliFotolar.size > 0 ? RENKLER.gece : RENKLER.komurAcik} />
+              <Text style={[styles.secimAksiyonYazi, seciliFotolar.size === 0 && styles.secimAksiyonPasif]}>Paylaş</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.secimAksiyon} onPress={seciliTasiAc} disabled={seciliFotolar.size === 0} activeOpacity={0.8}>
+              <Ionicons name="albums-outline" size={22} color={seciliFotolar.size > 0 ? RENKLER.gece : RENKLER.komurAcik} />
+              <Text style={[styles.secimAksiyonYazi, seciliFotolar.size === 0 && styles.secimAksiyonPasif]}>Taşı</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.secimAksiyon} onPress={seciliKapakYap} disabled={seciliFotolar.size !== 1} activeOpacity={0.8}>
+              <Ionicons name="image-outline" size={22} color={seciliFotolar.size === 1 ? RENKLER.gece : RENKLER.komurAcik} />
+              <Text style={[styles.secimAksiyonYazi, seciliFotolar.size !== 1 && styles.secimAksiyonPasif]}>Kapak</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.secimAksiyon} onPress={seciliSil} disabled={seciliFotolar.size === 0} activeOpacity={0.8}>
+              <Ionicons name="trash-outline" size={22} color={seciliFotolar.size > 0 ? '#C0392B' : RENKLER.komurAcik} />
+              <Text style={[styles.secimAksiyonYazi, { color: seciliFotolar.size > 0 ? '#C0392B' : RENKLER.komurAcik }]}>Sil</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <View style={[styles.altBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
@@ -369,6 +379,63 @@ export default function AlbumDetay() {
         </TouchableOpacity>
       </Modal>
 
+      {/* Foto context menu */}
+      <Modal visible={fotoMenuFoto !== null} transparent animationType="fade" onRequestClose={() => setFotoMenuFoto(null)}>
+        <TouchableOpacity style={styles.menuArkaplan} activeOpacity={1} onPress={() => setFotoMenuFoto(null)}>
+          <TouchableOpacity activeOpacity={1} onPress={() => {}}>
+            <View style={[styles.tasiPanel, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+              <View style={styles.tasiTutamac} />
+              <TouchableOpacity style={styles.menuSatir} onPress={() => {
+                const foto = fotolar.find(f => f.id === fotoMenuFoto);
+                setFotoMenuFoto(null);
+                if (foto) seciliPaylasSingle(foto.uri);
+              }}>
+                <Ionicons name="share-outline" size={18} color={RENKLER.gece} />
+                <Text style={styles.menuSatirYazi}>Paylaş</Text>
+              </TouchableOpacity>
+              <View style={styles.menuAyrac} />
+              <TouchableOpacity style={styles.menuSatir} onPress={() => {
+                const fotoId = fotoMenuFoto;
+                setFotoMenuFoto(null);
+                setTasinanFotoId(fotoId);
+                setTasiModundaMi(false);
+                setTasiModalAcik(true);
+              }}>
+                <Ionicons name="albums-outline" size={18} color={RENKLER.gece} />
+                <Text style={styles.menuSatirYazi}>Albüme Taşı</Text>
+              </TouchableOpacity>
+              <View style={styles.menuAyrac} />
+              <TouchableOpacity style={styles.menuSatir} onPress={() => {
+                const fotoId = fotoMenuFoto;
+                setFotoMenuFoto(null);
+                if (fotoId) kapakAyarla(album.id, fotoId);
+              }}>
+                <Ionicons name="image-outline" size={18} color={RENKLER.gece} />
+                <Text style={styles.menuSatirYazi}>Kapak Yap</Text>
+              </TouchableOpacity>
+              <View style={styles.menuAyrac} />
+              <TouchableOpacity style={styles.menuSatir} onPress={() => {
+                const fotoId = fotoMenuFoto;
+                setFotoMenuFoto(null);
+                if (fotoId) secimBaslat(fotoId);
+              }}>
+                <Ionicons name="checkmark-circle-outline" size={18} color={RENKLER.gece} />
+                <Text style={styles.menuSatirYazi}>Çoklu Seçim</Text>
+              </TouchableOpacity>
+              <View style={styles.menuAyrac} />
+              <TouchableOpacity style={styles.menuSatir} onPress={() => {
+                const fotoId = fotoMenuFoto;
+                setFotoMenuFoto(null);
+                if (fotoId) fotoSilOnay(fotoId);
+              }}>
+                <Ionicons name="trash-outline" size={18} color="#C0392B" />
+                <Text style={[styles.menuSatirYazi, { color: '#C0392B' }]}>Sil</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+
       <PaywallModal gorunur={paywallAcik} tip="foto" onKapat={() => setPaywallAcik(false)} />
 
       {/* Albüme Taşı Modal */}
@@ -382,9 +449,16 @@ export default function AlbumDetay() {
                 key={a.id}
                 style={styles.tasiSatir}
                 onPress={async () => {
-                  if (tasinanFotoId) await fotoTasi(tasinanFotoId, a.id);
-                  setTasiModalAcik(false);
-                  setTasinanFotoId(null);
+                  if (tasiModundaMi) {
+                    for (const fotoId of seciliFotolar) await fotoTasi(fotoId, a.id);
+                    setTasiModalAcik(false);
+                    setTasiModundaMi(false);
+                    secimiIptal();
+                  } else if (tasinanFotoId) {
+                    await fotoTasi(tasinanFotoId, a.id);
+                    setTasiModalAcik(false);
+                    setTasinanFotoId(null);
+                  }
                 }}
               >
                 <View style={[styles.tasiIkon, { backgroundColor: a.renk }]}>

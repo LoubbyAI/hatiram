@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   SafeAreaView, Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLanguage } from '../i18n';
+
+const ONBOARDING_GORULDU = 'onboarding_goruldu';
 
 const { width } = Dimensions.get('window');
 
@@ -80,14 +83,31 @@ function IlustrasYon({ ikon, ikonRenk, rozetler }: {
 
 export default function Onboarding() {
   const [adim, setAdim] = useState(0);
+  const [hazir, setHazir] = useState(false);
   const { t } = useLanguage();
   const sonAdim = adim === ONBOARDING.length - 1;
 
-  const ileri = () => {
-    if (sonAdim) { router.replace('/(tabs)'); return; }
+  useEffect(() => {
+    AsyncStorage.getItem(ONBOARDING_GORULDU).then(deger => {
+      if (deger === '1') {
+        router.replace('/(tabs)');
+      } else {
+        setHazir(true);
+      }
+    });
+  }, []);
+
+  const ileri = async () => {
+    if (sonAdim) {
+      await AsyncStorage.setItem(ONBOARDING_GORULDU, '1');
+      router.replace('/(tabs)');
+      return;
+    }
     setAdim(adim + 1);
   };
   const geri = () => { if (adim > 0) setAdim(adim - 1); };
+
+  if (!hazir) return null;
 
   const ekran = ONBOARDING[adim];
   const ekranMetin = t.onboarding[adim];

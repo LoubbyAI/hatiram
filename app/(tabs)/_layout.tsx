@@ -31,7 +31,8 @@ export default function TabLayout() {
             </View>
           ),
           tabBarButton: (props) => (
-            <TouchableOpacity {...props} style={styles.ekleBtnWrap} />
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            <TouchableOpacity {...(props as any)} style={styles.ekleBtnWrap} />
           ),
         }}
       />

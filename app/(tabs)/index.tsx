@@ -3,12 +3,14 @@ import {
   Dimensions, Modal, TextInput, Alert,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useAlbum, Album, Kisi } from '../../context/AlbumContext';
+import { usePremium, MAX_UCRETSIZ_ALBUM } from '../../context/PremiumContext';
+import PaywallModal from '../../components/PaywallModal';
 import { useLanguage } from '../../i18n';
 
 const { width } = Dimensions.get('window');
@@ -339,18 +341,45 @@ function DuzenleModal({ album, gorünür, onKapat }: { album: Album | null; gor�
 
 export default function Albumler() {
   const insets = useSafeAreaInsets();
-  const { albumler, albumFotolari, kisiler } = useAlbum();
+  const { albumler, albumFotolari, fotolar, kisiler, albumGuncelle } = useAlbum();
   const { t } = useLanguage();
+  const { isPremium } = usePremium();
   const [aktifKategori, setAktifKategori] = useState(0);
   const [seciliKisiId, setSeciliKisiId] = useState<string | null>(null);
   const [yeniAlbumAcik, setYeniAlbumAcik] = useState(false);
+  const [paywallAcik, setPaywallAcik] = useState(false);
   const [aramaAcik, setAramaAcik] = useState(false);
   const [aramaMetni, setAramaMetni] = useState('');
   const [duzenleAlbum, setDuzenleAlbum] = useState<Album | null>(null);
+  const [atamaModalAcik, setAtamaModalAcik] = useState(false);
+  const [secilenAtamaIds, setSecilenAtamaIds] = useState<Set<string>>(new Set());
 
   const KATEGORI_GORUNUM = [t.catAll, t.catDaily, t.catGrowth, t.catTravel, t.catFamily, t.catSchool, t.catSports, t.catBirthday, t.catSpecial];
 
-  const sonFoto = (albumId: string) => albumFotolari(albumId)[0]?.uri;
+  // Her oturum açılışında albüm başına bir rastgele index hesapla (kapakFotoId yoksa)
+  const rastgeleIndexler = useMemo(() => {
+    const map: Record<string, number> = {};
+    albumler.forEach(a => {
+      const sayfa = albumFotolari(a.id);
+      if (sayfa.length > 0) map[a.id] = Math.floor(Math.random() * sayfa.length);
+    });
+    return map;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [albumler.map(a => a.id).join(',')]);
+
+  const sonFoto = (albumId: string) => {
+    const album = albumler.find(a => a.id === albumId);
+    if (!album) return undefined;
+    // Kullanıcı kapak seçmişse onu göster
+    if (album.kapakFotoId) {
+      const kapak = fotolar.find(f => f.id === album.kapakFotoId);
+      if (kapak) return kapak.uri;
+    }
+    // Yoksa oturum başında belirlenen rastgele fotoğrafı göster
+    const albumFotoList = albumFotolari(albumId);
+    const idx = rastgeleIndexler[albumId] ?? 0;
+    return albumFotoList[idx]?.uri;
+  };
   const fotoSayisi = (albumId: string) => albumFotolari(albumId).length;
   const toplamFoto = albumler.reduce((t2, a) => t2 + fotoSayisi(a.id), 0);
   const kisiById = (id?: string) => kisiler.find(k => k.id === id);
@@ -373,6 +402,14 @@ export default function Albumler() {
     .slice(0, 8);
 
   const aramayiKapat = () => { setAramaAcik(false); setAramaMetni(''); };
+
+  const yeniAlbumAc = () => {
+    if (!isPremium && albumler.length >= MAX_UCRETSIZ_ALBUM) {
+      setPaywallAcik(true);
+    } else {
+      setYeniAlbumAcik(true);
+    }
+  };
 
   const kisiSec = (id: string) => {
     setSeciliKisiId(prev => prev === id ? null : id);
@@ -411,7 +448,7 @@ export default function Albumler() {
                 <TouchableOpacity style={styles.ikonBtn} onPress={() => setAramaAcik(true)}>
                   <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.8)" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.ikonBtn} onPress={() => setYeniAlbumAcik(true)}>
+                <TouchableOpacity style={styles.ikonBtn} onPress={yeniAlbumAc}>
                   <Ionicons name="add" size={20} color="rgba(255,255,255,0.8)" />
                 </TouchableOpacity>
               </View>
@@ -459,7 +496,7 @@ export default function Albumler() {
             </View>
             <Text style={bosDurum.baslik}>{t.noMemoriesTitle}</Text>
             <Text style={bosDurum.alt}>{t.noMemoriesDesc}</Text>
-            <TouchableOpacity style={bosDurum.btn} onPress={() => setYeniAlbumAcik(true)} activeOpacity={0.85}>
+            <TouchableOpacity style={bosDurum.btn} onPress={yeniAlbumAc} activeOpacity={0.85}>
               <Ionicons name="add" size={18} color={RENKLER.beyaz} />
               <Text style={bosDurum.btnYazi}>{t.createFirstAlbum}</Text>
             </TouchableOpacity>
@@ -488,7 +525,14 @@ export default function Albumler() {
                 <Text style={styles.bolumBaslik}>
                   {seciliKisiId ? kisiler.find(k => k.id === seciliKisiId)?.ad : KATEGORI_GORUNUM[aktifKategori]}
                 </Text>
-                <Text style={styles.bolumLink}>{filtreliAlbumler.length} {t.tabAlbums.toLowerCase()}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  {seciliKisiId && filtreliAlbumler.length > 0 && albumler.length > filtreliAlbumler.length && (
+                    <TouchableOpacity onPress={() => { setSecilenAtamaIds(new Set()); setAtamaModalAcik(true); }} activeOpacity={0.7}>
+                      <Ionicons name="link-outline" size={18} color={RENKLER.gul} />
+                    </TouchableOpacity>
+                  )}
+                  <Text style={styles.bolumLink}>{filtreliAlbumler.length} {t.tabAlbums.toLowerCase()}</Text>
+                </View>
               </View>
             )}
 
@@ -501,6 +545,16 @@ export default function Albumler() {
                 <Text style={styles.kategoriBosAlt}>
                   {seciliKisiId ? t.noAlbumsForPersonDesc : t.noAlbumsForCategoryDesc}
                 </Text>
+                {seciliKisiId && albumler.length > 0 && (
+                  <TouchableOpacity
+                    style={styles.atamaBtn}
+                    onPress={() => { setSecilenAtamaIds(new Set()); setAtamaModalAcik(true); }}
+                    activeOpacity={0.85}
+                  >
+                    <Ionicons name="link-outline" size={16} color={RENKLER.beyaz} />
+                    <Text style={styles.atamaBtnYazi}>{t.assignAlbums}</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             )}
 
@@ -525,7 +579,7 @@ export default function Albumler() {
           </>
         )}
 
-        <TouchableOpacity style={styles.yeniAlbumBtn} onPress={() => setYeniAlbumAcik(true)}>
+        <TouchableOpacity style={styles.yeniAlbumBtn} onPress={yeniAlbumAc}>
           <Ionicons name="add" size={18} color={RENKLER.gul} />
           <Text style={styles.yeniAlbumYazi}>{t.addNewAlbum}</Text>
         </TouchableOpacity>
@@ -535,6 +589,69 @@ export default function Albumler() {
 
       <YeniAlbumModal gorünür={yeniAlbumAcik} onKapat={() => setYeniAlbumAcik(false)} />
       <DuzenleModal album={duzenleAlbum} gorünür={!!duzenleAlbum} onKapat={() => setDuzenleAlbum(null)} />
+      <PaywallModal gorunur={paywallAcik} tip="album" onKapat={() => setPaywallAcik(false)} />
+
+      {/* Kişiye albüm atama modalı */}
+      <Modal visible={atamaModalAcik} transparent animationType="slide" onRequestClose={() => setAtamaModalAcik(false)}>
+        <KeyboardAvoidingView style={modal.kaplama} behavior="padding">
+          <TouchableOpacity style={modal.arkaplan} activeOpacity={1} onPress={() => setAtamaModalAcik(false)} />
+          <View style={[modal.kart, { maxHeight: '75%' }]}>
+            <View style={modal.tutamac} />
+            <Text style={[modal.baslik, { marginBottom: 4 }]}>{t.assignAlbumsTitle}</Text>
+            <Text style={[modal.iptalYazi, { marginBottom: 16, textAlign: 'center' }]}>{t.assignAlbumsDesc}</Text>
+            {(() => {
+              const atanabilir = albumler.filter(a => a.kisiId !== seciliKisiId);
+              if (atanabilir.length === 0) {
+                return <Text style={[modal.iptalYazi, { marginBottom: 24 }]}>{t.noAlbumsToAssign}</Text>;
+              }
+              return (
+                <>
+                  <ScrollView showsVerticalScrollIndicator={false} style={{ marginBottom: 12 }}>
+                    {atanabilir.map(a => {
+                      const secili = secilenAtamaIds.has(a.id);
+                      return (
+                        <TouchableOpacity
+                          key={a.id}
+                          style={atamaSt.satir}
+                          onPress={() => setSecilenAtamaIds(prev => {
+                            const yeni = new Set(prev);
+                            secili ? yeni.delete(a.id) : yeni.add(a.id);
+                            return yeni;
+                          })}
+                          activeOpacity={0.75}
+                        >
+                          <View style={[atamaSt.ikonDaire, { backgroundColor: a.renk }]}>
+                            <Ionicons name={a.ikon as React.ComponentProps<typeof Ionicons>['name']} size={18} color={a.ikonRenk} />
+                          </View>
+                          <Text style={atamaSt.ad}>{a.ad}</Text>
+                          <View style={[atamaSt.check, secili && { backgroundColor: RENKLER.gece, borderColor: RENKLER.gece }]}>
+                            {secili && <Ionicons name="checkmark" size={12} color={RENKLER.beyaz} />}
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+                  <TouchableOpacity
+                    style={[modal.btn, secilenAtamaIds.size === 0 && { opacity: 0.4 }]}
+                    disabled={secilenAtamaIds.size === 0}
+                    activeOpacity={0.85}
+                    onPress={async () => {
+                      await Promise.all([...secilenAtamaIds].map(id => albumGuncelle(id, { kisiId: seciliKisiId ?? undefined })));
+                      setAtamaModalAcik(false);
+                    }}
+                  >
+                    <Text style={modal.btnYazi}>{t.assignBtn} ({secilenAtamaIds.size})</Text>
+                  </TouchableOpacity>
+                </>
+              );
+            })()}
+            <TouchableOpacity style={modal.iptal} onPress={() => setAtamaModalAcik(false)}>
+              <Text style={modal.iptalYazi}>{t.cancel}</Text>
+            </TouchableOpacity>
+            <View style={{ height: 16 }} />
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
@@ -566,6 +683,8 @@ const styles = StyleSheet.create({
   kategoriBosDurum: { alignItems: 'center', paddingTop: 40, paddingHorizontal: 40, gap: 10 },
   kategoriBosYazi: { fontSize: 16, fontWeight: '600', color: RENKLER.gece },
   kategoriBosAlt: { fontSize: 13, color: RENKLER.komurAcik, textAlign: 'center', lineHeight: 20 },
+  atamaBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, paddingHorizontal: 18, paddingVertical: 11, backgroundColor: RENKLER.gece, borderRadius: 14 },
+  atamaBtnYazi: { color: RENKLER.beyaz, fontSize: 14, fontWeight: '600' },
   sonListe: { marginBottom: 4 },
   sonFoto: { width: 76, height: 76, borderRadius: 13, marginRight: 10, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(166,123,113,0.15)', position: 'relative' },
   sonFotoOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, backgroundColor: 'rgba(26,46,68,0.55)' },
@@ -650,6 +769,13 @@ const kisiStil = StyleSheet.create({
   avatar: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   avatarHarf: { fontSize: 12, fontWeight: '700' },
   ad: { fontSize: 13, color: 'rgba(255,255,255,0.75)', fontWeight: '500' },
+});
+
+const atamaSt = StyleSheet.create({
+  satir: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 12, gap: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(166,123,113,0.1)' },
+  ikonDaire: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  ad: { flex: 1, fontSize: 15, color: RENKLER.gece, fontWeight: '500' },
+  check: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: RENKLER.gulAcik, alignItems: 'center', justifyContent: 'center' },
 });
 
 const katSec = StyleSheet.create({

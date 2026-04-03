@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, FlatList, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAlbum, Foto } from '../../context/AlbumContext';
 import { useLanguage } from '../../i18n';
+
+const { width: EKRAN_GENISLIK } = Dimensions.get('window');
 
 const RENKLER = {
   gece: '#1A2E44', gul: '#A67B71', gulAcik: '#C4A09A',
@@ -33,7 +35,7 @@ export default function Takvim() {
   const { fotolar } = useAlbum();
   const { t } = useLanguage();
   const gruplar = fotoAyGrup(fotolar, t.months);
-  const [buyukFotoUri, setBuyukFotoUri] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ fotolar: Foto[]; index: number } | null>(null);
 
   return (
     <View style={styles.kapsayici}>
@@ -73,11 +75,11 @@ export default function Takvim() {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.ayKartFotolar}
               >
-                {grup.fotolar.map((foto) => (
+                {grup.fotolar.map((foto, fotoIdx) => (
                   <TouchableOpacity
                     key={foto.id}
                     style={styles.ayFoto}
-                    onPress={() => setBuyukFotoUri(foto.uri)}
+                    onPress={() => setLightbox({ fotolar: grup.fotolar, index: fotoIdx })}
                     activeOpacity={0.85}
                   >
                     <Image source={{ uri: foto.uri }} style={StyleSheet.absoluteFill} contentFit="cover" />
@@ -91,15 +93,26 @@ export default function Takvim() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      <Modal visible={!!buyukFotoUri} transparent animationType="fade" onRequestClose={() => setBuyukFotoUri(null)}>
+      <Modal visible={!!lightbox} transparent animationType="fade" onRequestClose={() => setLightbox(null)}>
         <View style={styles.lightboxArkaplan}>
-          <TouchableOpacity style={styles.lightboxKapat} onPress={() => setBuyukFotoUri(null)}>
+          <TouchableOpacity style={styles.lightboxKapat} onPress={() => setLightbox(null)}>
             <Ionicons name="close" size={24} color={RENKLER.beyaz} />
           </TouchableOpacity>
-          {buyukFotoUri && (
-            <TouchableOpacity activeOpacity={1} onPress={() => setBuyukFotoUri(null)} style={StyleSheet.absoluteFill}>
-              <Image source={{ uri: buyukFotoUri }} style={StyleSheet.absoluteFill} contentFit="contain" />
-            </TouchableOpacity>
+          {lightbox && (
+            <FlatList
+              data={lightbox.fotolar}
+              keyExtractor={(f) => f.id}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              initialScrollIndex={lightbox.index}
+              getItemLayout={(_, i) => ({ length: EKRAN_GENISLIK, offset: EKRAN_GENISLIK * i, index: i })}
+              renderItem={({ item }) => (
+                <View style={{ width: EKRAN_GENISLIK, flex: 1, justifyContent: 'center' }}>
+                  <Image source={{ uri: item.uri }} style={{ width: EKRAN_GENISLIK, flex: 1 }} contentFit="contain" />
+                </View>
+              )}
+            />
           )}
         </View>
       </Modal>
